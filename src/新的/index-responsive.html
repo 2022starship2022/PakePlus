@@ -1,0 +1,1666 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>法医学死亡时间推导APP 项目分享</title>
+    <!-- 引入响应式CSS框架 -->
+    <link rel="stylesheet" href="responsive.css">
+    <!-- 引入主要样式文件 -->
+     <link rel="stylesheet" href="styles.css">
+
+  </head>
+  <body>
+    <canvas id="particle-bg"></canvas>
+    
+    <!-- 应用容器 -->
+    <div class="app-container">
+      <!-- 主要内容区域 -->
+      <div class="main-content">
+        <!-- PPT内容容器 -->
+        <div class="ppt-container" id="ppt-container">
+          <div id="ppt-root">
+            <!-- 标题页 -->
+            <section class="active title-page">
+              <div class="title-content">
+                <h1>法医学死亡时间推导APP<br />项目分享</h1>
+                <div class="subtitle">
+                  成都市公安局武侯区分局 周凡
+                </div>
+                <div class="date">
+                  2025年6月
+                </div>
+              </div>
+            </section>
+            
+            <!-- 项目背景页 -->
+            <section>
+              <h2>项目背景与动因</h2>
+              <ul>
+                <li>死亡时间推导是法医工作中的难点与痛点</li>
+                <li>环境、尸温、尸体现象等多因素影响，传统方法误差大</li>
+                <li>现场数据采集、记录繁琐，经验依赖性强</li>
+                <li>启发：借助AI与大模型能力，开发智能推导工具</li>
+              </ul>
+              <svg width="800" height="400"  viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+                <defs>
+                  <linearGradient id="problemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ff7043;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#f4511e;stop-opacity:1" />
+                  </linearGradient>
+                  <linearGradient id="solutionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#2196f3;stop-opacity:1" />
+                  </linearGradient>
+                  <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
+                  </linearGradient>
+                  <filter id="glow">
+                    <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+                    <feMerge> 
+                      <feMergeNode in="coloredBlur"/>
+                      <feMergeNode in="SourceGraphic"/> 
+                    </feMerge>
+                  </filter>
+                </defs>
+                
+                <!-- 问题识别层 -->
+                <g class="problem-layer">
+                  <text x="400" y="25" font-size="1.4em" fill="#ff7043" text-anchor="middle" font-weight="bold">问题识别与分析</text>
+                  
+                  <!-- 问题节点 -->
+                  <rect x="50" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+                  </rect>
+                  <text x="120" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">环境影响复杂</text>
+                  <text x="120" y="90" font-size="0.8em" fill="white" text-anchor="middle">多因素干扰</text>
+                  
+                  <rect x="220" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                  </rect>
+                  <text x="290" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">计算误差大</text>
+                  <text x="290" y="90" font-size="0.8em" fill="white" text-anchor="middle">简化公式不准</text>
+                  
+                  <rect x="390" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1s"/>
+                  </rect>
+                  <text x="460" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">经验依赖强</text>
+                  <text x="460" y="90" font-size="0.8em" fill="white" text-anchor="middle">量化困难</text>
+                  
+                  <rect x="560" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+                    <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                  </rect>
+                  <text x="630" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">数据采集难</text>
+                  <text x="630" y="90" font-size="0.8em" fill="white" text-anchor="middle">记录繁琐</text>
+                </g>
+                
+                <!-- 连接线 -->
+                <g class="connection-lines">
+                  <path d="M 120 120 Q 200 140 280 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+                    <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+                  </path>
+                  <path d="M 290 120 Q 350 140 400 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+                    <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+                  </path>
+                  <path d="M 460 120 Q 500 140 520 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+                    <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1s"/>
+                  </path>
+                  <path d="M 630 120 Q 580 140 520 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+                    <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+                  </path>
+                </g>
+                
+                <!-- 解决方案层 -->
+                <g class="solution-layer">
+                  <text x="400" y="185" font-size="1.4em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">AI赋能解决方案</text>
+                  
+                  <!-- 核心解决方案 -->
+                  <ellipse cx="400" cy="220" rx="180" ry="40" fill="url(#solutionGrad)" filter="url(#glow)">
+                    <animateTransform attributeName="transform" type="scale" values="1;1.05;1" dur="3s" repeatCount="indefinite"/>
+                  </ellipse>
+                  <text x="400" y="220" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">人机协同 + 内外联动</text>
+                  <text x="400" y="235" font-size="0.9em" fill="white" text-anchor="middle">AI大模型 + 多源数据融合</text>
+                  
+                  <!-- 技术路径 -->
+                  <rect x="100" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+                  </rect>
+                  <text x="160" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">本地脱敏</text>
+                  <text x="160" y="315" font-size="0.7em" fill="white" text-anchor="middle">数据安全</text>
+                  
+                  <rect x="250" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                  </rect>
+                  <text x="310" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">知识提炼</text>
+                  <text x="310" y="315" font-size="0.7em" fill="white" text-anchor="middle">智能整合</text>
+                  
+                  <rect x="400" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1s"/>
+                  </rect>
+                  <text x="460" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">模型调用</text>
+                  <text x="460" y="315" font-size="0.7em" fill="white" text-anchor="middle">高性能计算</text>
+                  
+                  <rect x="550" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                  </rect>
+                  <text x="610" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">APP生成</text>
+                  <text x="610" y="315" font-size="0.7em" fill="white" text-anchor="middle">场景定制</text>
+                </g>
+                
+                <!-- 成果展示 -->
+                <g class="result-layer">
+                  <text x="400" y="365" font-size="1.4em" fill="#81c784" text-anchor="middle" font-weight="bold">质效提升成果</text>
+                  
+                  <circle cx="200" cy="385" r="25" fill="url(#resultGrad)" filter="url(#glow)">
+                    <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite"/>
+                  </circle>
+                  <text x="200" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">精准推导</text>
+                  
+                  <circle cx="400" cy="385" r="25" fill="url(#resultGrad)" filter="url(#glow)">
+                    <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+                  </circle>
+                  <text x="400" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">智能辅助</text>
+                  
+                  <circle cx="600" cy="385" r="25" fill="url(#resultGrad)" filter="url(#glow)">
+                    <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+                  </circle>
+                  <text x="600" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">实战应用</text>
+                </g>
+                
+                <!-- 流程箭头 -->
+                <g class="flow-arrows">
+                  <polygon points="390,130 410,130 400,145" fill="#4fc3f7" opacity="0.8">
+                    <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="1s" repeatCount="indefinite"/>
+                  </polygon>
+                  <polygon points="390,260 410,260 400,275" fill="#81c784" opacity="0.8">
+                    <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="1s" repeatCount="indefinite" begin="0.5s"/>
+                  </polygon>
+                </g>
+              </svg>
+            </section>
+            
+            <!-- 安全与创新路径页 -->
+            <section>
+              <h2>安全与创新路径</h2>
+              <ul>
+                <li>传统法医学理论与现代AI技术深度融合</li>
+                <li>构建可信、可靠、可解释的智能推导系统</li>
+                <li>确保算法透明度，满足司法证据要求</li>
+                <li>建立多层次验证机制，保障结果准确性</li>
+              </ul>
+              <svg width="900" height="450" viewBox="0 0 900 450" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+          <defs>
+            <linearGradient id="dataGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#29b6f6;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="securityGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff8a65;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff7043;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="appGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffca28;stop-opacity:1" />
+            </linearGradient>
+            <filter id="glowEffect">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+            <filter id="shadowEffect">
+              <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+            </filter>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+          
+          <!-- AI赋能系统架构 -->
+          <text x="450" y="30" font-size="1.5em" fill="#2c3e50" text-anchor="middle" font-weight="bold">AI赋能系统架构</text>
+          
+          <!-- 数据采集层 -->
+          <g class="data-collection-layer">
+            <text x="150" y="80" font-size="1.2em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">数据采集层</text>
+            
+            <!-- 现场数据采集 -->
+            <rect x="50" y="90" width="90" height="60" rx="10" fill="url(#dataGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="95" y="115" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">现场环境</text>
+            <text x="95" y="130" font-size="0.7em" fill="white" text-anchor="middle">温度湿度</text>
+            <text x="95" y="142" font-size="0.7em" fill="white" text-anchor="middle">地理位置</text>
+            
+            <rect x="160" y="90" width="90" height="60" rx="10" fill="url(#dataGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="205" y="115" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">尸体特征</text>
+            <text x="205" y="130" font-size="0.7em" fill="white" text-anchor="middle">六种现象</text>
+            <text x="205" y="142" font-size="0.7em" fill="white" text-anchor="middle">标准分级</text>
+          </g>
+          
+          <!-- 安全处理层 -->
+          <g class="security-layer">
+            <text x="150" y="175" font-size="1.2em" fill="#ff8a65" text-anchor="middle" font-weight="bold">安全处理层</text>
+            
+            <rect x="70" y="185" width="160" height="50" rx="12" fill="url(#securityGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="150" y="200" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">本地脱敏处理</text>
+            <text x="150" y="215" font-size="0.8em" fill="white" text-anchor="middle">数据安全 + 隐私保护</text>
+          </g>
+          
+          <!-- AI转化层 -->
+          <g class="ai-transformation-layer">
+            <text x="450" y="175" font-size="1.2em" fill="#81c784" text-anchor="middle" font-weight="bold">AI智能转化层</text>
+            
+            <!-- 核心AI模块 -->
+            <rect x="350" y="190" width="200" height="80" rx="15" fill="url(#aiGrad)" filter="url(#glowEffect)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2.5s" repeatCount="indefinite"/>
+            </rect>
+            <text x="450" y="215" font-size="1em" fill="white" text-anchor="middle" font-weight="bold">人机协同引擎</text>
+            <text x="450" y="235" font-size="0.8em" fill="white" text-anchor="middle">大模型 + 专家知识</text>
+            <text x="450" y="250" font-size="0.8em" fill="white" text-anchor="middle">多源数据融合</text>
+            
+            <!-- AI子模块 -->
+            <circle cx="380" cy="300" r="25" fill="#66bb6a" filter="url(#shadowEffect)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="380" y="305" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">知识提炼</text>
+            
+            <circle cx="450" cy="300" r="25" fill="#66bb6a" filter="url(#shadowEffect)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+            </circle>
+            <text x="450" y="305" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">智能推理</text>
+            
+            <circle cx="520" cy="300" r="25" fill="#66bb6a" filter="url(#shadowEffect)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+            </circle>
+            <text x="520" y="305" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">结果优化</text>
+          </g>
+          
+          <!-- 应用生成层 -->
+          <g class="application-layer">
+            <text x="750" y="175" font-size="1.2em" fill="#ffd54f" text-anchor="middle" font-weight="bold">应用生成层</text>
+            
+            <!-- 应用模块 -->
+            <rect x="650" y="190" width="90" height="60" rx="10" fill="url(#appGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="695" y="215" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">移动APP</text>
+            <text x="695" y="230" font-size="0.7em" fill="#333" text-anchor="middle">现场应用</text>
+            
+            <rect x="760" y="190" width="90" height="60" rx="10" fill="url(#appGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="805" y="215" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">Web平台</text>
+            <text x="805" y="230" font-size="0.7em" fill="#333" text-anchor="middle">后台分析</text>
+            
+            <!-- 功能特性 -->
+            <rect x="680" y="270" width="120" height="40" rx="8" fill="#ffca28" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="740" y="285" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">场景定制化</text>
+            <text x="740" y="300" font-size="0.7em" fill="#333" text-anchor="middle">智能推导工具</text>
+          </g>
+          
+          <!-- 数据流箭头 -->
+          <g class="data-flow">
+            <!-- 采集到安全处理 -->
+            <path d="M 190 140 Q 170 160 150 180" stroke="#4fc3f7" stroke-width="3" fill="none" marker-end="url(#arrowhead)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- 安全处理到AI转化 -->
+            <path d="M 270 200 Q 310 200 350 220" stroke="#ff8a65" stroke-width="3" fill="none" marker-end="url(#arrowhead)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            
+            <!-- AI转化到应用生成 -->
+            <path d="M 550 220 Q 600 220 650 220" stroke="#81c784" stroke-width="3" fill="none" marker-end="url(#arrowhead)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </path>
+          </g>
+          
+          <!-- 反馈回路 -->
+          <g class="feedback-loop">
+            <path d="M 650 280 Q 450 350 270 280 Q 150 350 90 280" stroke="#9c27b0" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.7">
+              <animate attributeName="stroke-dasharray" values="5,5;10,10;5,5" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <text x="450" y="370" font-size="0.8em" fill="#9c27b0" text-anchor="middle" font-style="italic">持续学习与优化反馈</text>
+          </g>
+          
+          <!-- 内外联动标识 -->
+          <g class="collaboration-indicator">
+            <rect x="350" y="400" width="200" height="30" rx="15" fill="#e1f5fe" stroke="#4fc3f7" stroke-width="2">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="450" y="420" font-size="0.9em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">内外联动协作机制</text>
+          </g>
+          
+          <!-- 箭头标记定义 -->
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+        </svg>
+            </section>
+            
+            <!-- 核心算法方案页 -->
+            <section>
+              <h2>核心算法方案</h2>
+              <ul>
+                <li>基于多元线性回归的尸温下降模型</li>
+                <li>融合环境因子的修正算法</li>
+                <li>尸体现象权重分配机制</li>
+                <li>置信度评估与不确定性量化</li>
+              </ul>
+              <svg width="800" height="400" viewBox="0 0 800 420" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+                <!-- 算法流程图 -->
+                <defs>
+                  <linearGradient id="algoGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ff7043;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#ff5722;stop-opacity:1" />
+                  </linearGradient>
+                  <linearGradient id="algoGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <stop offset="0%" style="stop-color:#ab47bc;stop-opacity:1" />
+                    <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+                  </linearGradient>
+                  <filter id="algoShadow">
+                    <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+                  </filter>
+                </defs>
+                
+                <text x="400" y="30" font-size="1.3em" fill="#2c3e50" text-anchor="middle" font-weight="bold">核心算法流程</text>
+                
+                <!-- 输入 -->
+                <rect x="50" y="80" width="120" height="60" rx="10" fill="url(#algoGrad1)" filter="url(#algoShadow)">
+                  <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+                </rect>
+                <text x="110" y="115" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">数据输入</text>
+                
+                <!-- 处理 -->
+                <rect x="250" y="80" width="120" height="60" rx="10" fill="url(#algoGrad2)" filter="url(#algoShadow)">
+                  <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+                </rect>
+                <text x="310" y="115" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">算法处理</text>
+                
+                <!-- 输出 -->
+                <rect x="450" y="80" width="120" height="60" rx="10" fill="url(#algoGrad1)" filter="url(#algoShadow)">
+                  <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1s"/>
+                </rect>
+                <text x="510" y="115" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">结果输出</text>
+                
+                <!-- 验证 -->
+                <rect x="630" y="80" width="120" height="60" rx="10" fill="url(#algoGrad2)" filter="url(#algoShadow)">
+                  <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+                </rect>
+                <text x="690" y="115" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">结果验证</text>
+                
+                <!-- 连接线 -->
+                <path d="M 170 110 L 250 110" stroke="#666" stroke-width="2" marker-end="url(#algoArrow)"/>
+                <path d="M 370 110 L 450 110" stroke="#666" stroke-width="2" marker-end="url(#algoArrow)"/>
+                <path d="M 570 110 L 630 110" stroke="#666" stroke-width="2" marker-end="url(#algoArrow)"/>
+                
+                <defs>
+                  <marker id="algoArrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+                    <polygon points="0 0, 8 3, 0 6" fill="#666" />
+                  </marker>
+                </defs>
+              </svg>
+            </section>
+            
+            <!-- 工具功能设计页 -->
+            <section>
+              <h2>工具功能设计</h2>
+              <ul>
+                <li>整个工具分为3个页面，以向导的形式指引操作</li>
+                <li>环境参数可以手工填写，也可以通过高德地图API实时获取</li>
+                <li>尸体特征使用了六种尸体现象</li>
+                <li>对尸体现象的描述进行了标准化分级</li>
+                <li>填写完信息后，自动生成报告</li>
+                <li>支持将报告导出，发送给后方的战友</li>
+              </ul>
+              <svg width="900" height="500" viewBox="0 0 900 500" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+          <defs>
+            <linearGradient id="timelineGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#e3f2fd;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#bbdefb;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#90caf9;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="phaseGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#29b6f6;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="phaseGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="phaseGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffb74d;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffa726;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="phaseGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#f06292;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ec407a;stop-opacity:1" />
+            </linearGradient>
+            <filter id="timelineShadow">
+              <feDropShadow dx="2" dy="2" stdDeviation="2" flood-opacity="0.3"/>
+            </filter>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- 案例时间线标题 -->
+          <text x="450" y="25" font-size="1.5em" fill="#2c3e50" text-anchor="middle" font-weight="bold">实战案例时间线</text>
+          
+          <!-- 主时间线 -->
+          <line x1="50" y1="250" x2="850" y2="250" stroke="url(#timelineGrad)" stroke-width="6" filter="url(#timelineShadow)"/>
+          
+          <!-- 阶段1：现场勘查 -->
+          <g class="phase1">
+            <circle cx="150" cy="250" r="12" fill="url(#phaseGrad1)" filter="url(#glow)">
+              <animate attributeName="r" values="12;15;12" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <rect x="100" y="100" width="100" height="120" rx="8" fill="#f8f9fa" stroke="#4fc3f7" stroke-width="2" filter="url(#timelineShadow)"/>
+            <text x="150" y="120" font-size="0.9em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">现场勘查</text>
+            <text x="150" y="140" font-size="0.7em" fill="#666" text-anchor="middle">2023.3.15</text>
+            <text x="150" y="155" font-size="0.7em" fill="#666" text-anchor="middle">09:30</text>
+            <text x="110" y="175" font-size="0.6em" fill="#333">• 发现尸体</text>
+            <text x="110" y="190" font-size="0.6em" fill="#333">• 环境测量</text>
+            <text x="110" y="205" font-size="0.6em" fill="#333">• 现象记录</text>
+            
+            <!-- 连接线 -->
+            <line x1="150" y1="220" x2="150" y2="238" stroke="#4fc3f7" stroke-width="2"/>
+          </g>
+          
+          <!-- 阶段2：初步分析 -->
+          <g class="phase2">
+            <circle cx="300" cy="250" r="12" fill="url(#phaseGrad2)" filter="url(#glow)">
+              <animate attributeName="r" values="12;15;12" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <rect x="250" y="280" width="100" height="120" rx="8" fill="#f8f9fa" stroke="#81c784" stroke-width="2" filter="url(#timelineShadow)"/>
+            <text x="300" y="300" font-size="0.9em" fill="#81c784" text-anchor="middle" font-weight="bold">初步分析</text>
+            <text x="300" y="320" font-size="0.7em" fill="#666" text-anchor="middle">2023.3.15</text>
+            <text x="300" y="335" font-size="0.7em" fill="#666" text-anchor="middle">11:00</text>
+            <text x="260" y="355" font-size="0.6em" fill="#333">• 数据录入</text>
+            <text x="260" y="370" font-size="0.6em" fill="#333">• 算法计算</text>
+            <text x="260" y="385" font-size="0.6em" fill="#333">• 初步结论</text>
+            
+            <!-- 连接线 -->
+            <line x1="300" y1="262" x2="300" y2="280" stroke="#81c784" stroke-width="2"/>
+          </g>
+          
+          <!-- 阶段3：深入调查 -->
+          <g class="phase3">
+            <circle cx="500" cy="250" r="12" fill="url(#phaseGrad3)" filter="url(#glow)">
+              <animate attributeName="r" values="12;15;12" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <rect x="450" y="100" width="100" height="120" rx="8" fill="#f8f9fa" stroke="#ffb74d" stroke-width="2" filter="url(#timelineShadow)"/>
+            <text x="500" y="120" font-size="0.9em" fill="#ffb74d" text-anchor="middle" font-weight="bold">深入调查</text>
+            <text x="500" y="140" font-size="0.7em" fill="#666" text-anchor="middle">2023.3.16</text>
+            <text x="500" y="155" font-size="0.7em" fill="#666" text-anchor="middle">14:30</text>
+            <text x="460" y="175" font-size="0.6em" fill="#333">• 补充取证</text>
+            <text x="460" y="190" font-size="0.6em" fill="#333">• 交叉验证</text>
+            <text x="460" y="205" font-size="0.6em" fill="#333">• 专家会诊</text>
+            
+            <!-- 连接线 -->
+            <line x1="500" y1="220" x2="500" y2="238" stroke="#ffb74d" stroke-width="2"/>
+          </g>
+          
+          <!-- 阶段4：案件突破 -->
+          <g class="phase4">
+            <circle cx="700" cy="250" r="12" fill="url(#phaseGrad4)" filter="url(#glow)">
+              <animate attributeName="r" values="12;15;12" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            <rect x="650" y="280" width="100" height="120" rx="8" fill="#f8f9fa" stroke="#f06292" stroke-width="2" filter="url(#timelineShadow)"/>
+            <text x="700" y="300" font-size="0.9em" fill="#f06292" text-anchor="middle" font-weight="bold">案件突破</text>
+            <text x="700" y="320" font-size="0.7em" fill="#666" text-anchor="middle">2023.3.18</text>
+            <text x="700" y="335" font-size="0.7em" fill="#666" text-anchor="middle">16:45</text>
+            <text x="660" y="355" font-size="0.6em" fill="#333">• 嫌疑人确认</text>
+            <text x="660" y="370" font-size="0.6em" fill="#333">• 时间吻合</text>
+            <text x="660" y="385" font-size="0.6em" fill="#333">• 成功破案</text>
+            
+            <!-- 连接线 -->
+            <line x1="700" y1="262" x2="700" y2="280" stroke="#f06292" stroke-width="2"/>
+          </g>
+          
+          <!-- 关键结果统计 -->
+          <g class="results">
+            <rect x="50" y="420" width="800" height="60" rx="10" fill="#f8f9fa" stroke="#ddd" stroke-width="1" filter="url(#timelineShadow)"/>
+            <text x="450" y="440" font-size="1.1em" fill="#2c3e50" text-anchor="middle" font-weight="bold">关键结果</text>
+            
+            <text x="150" y="460" font-size="0.8em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">推导时间</text>
+            <text x="150" y="475" font-size="0.7em" fill="#666" text-anchor="middle">72小时前</text>
+            
+            <text x="350" y="460" font-size="0.8em" fill="#81c784" text-anchor="middle" font-weight="bold">实际时间</text>
+            <text x="350" y="475" font-size="0.7em" fill="#666" text-anchor="middle">74小时前</text>
+            
+            <text x="550" y="460" font-size="0.8em" fill="#ffb74d" text-anchor="middle" font-weight="bold">误差范围</text>
+            <text x="550" y="475" font-size="0.7em" fill="#666" text-anchor="middle">±2小时</text>
+            
+            <text x="750" y="460" font-size="0.8em" fill="#f06292" text-anchor="middle" font-weight="bold">准确率</text>
+            <text x="750" y="475" font-size="0.7em" fill="#666" text-anchor="middle">97.2%</text>
+          </g>
+            
+            <!-- 现象选择区域 -->
+            <circle cx="380" cy="140" r="12" fill="#81c784" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="400" y="145" font-size="0.7em" fill="#333" font-weight="bold">尸斑：明显</text>
+            
+            <circle cx="380" cy="170" r="12" fill="#81c784" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+            </circle>
+            <text x="400" y="175" font-size="0.7em" fill="#333" font-weight="bold">尸僵：部分</text>
+            
+            <circle cx="380" cy="200" r="12" fill="#81c784" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+            </circle>
+            <text x="400" y="205" font-size="0.7em" fill="#333" font-weight="bold">腐败：轻微</text>
+            
+            <!-- 标准化分级滑块 -->
+            <rect x="370" y="240" width="160" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="370" y="240" width="80" height="8" rx="4" fill="#81c784">
+              <animate attributeName="width" values="60;100;60" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <circle cx="450" cy="244" r="6" fill="#66bb6a">
+              <animate attributeName="cx" values="430;470;430" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="450" y="265" font-size="0.7em" fill="#666" text-anchor="middle">可信度：75%</text>
+            
+            <!-- 下一步按钮 -->
+            <rect x="380" y="320" width="140" height="35" rx="8" fill="#81c784" opacity="0.9"/>
+            <text x="450" y="340" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">生成报告 →</text>
+          </g>
+          
+          <!-- 第三页：报告生成界面 -->
+          <g class="page3-ui">
+            <text x="750" y="65" font-size="1.2em" fill="#ffd54f" text-anchor="middle" font-weight="bold">第三页：报告生成</text>
+            
+            <!-- 手机界面框架 -->
+            <rect x="650" y="80" width="200" height="320" rx="20" fill="#f5f5f5" stroke="#ddd" stroke-width="2" filter="url(#uiShadow)">
+              <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            
+            <!-- 状态栏 -->
+            <rect x="660" y="90" width="180" height="20" rx="10" fill="url(#uiGrad3)" opacity="0.8"/>
+            <text x="750" y="103" font-size="0.7em" fill="#333" text-anchor="middle" font-weight="bold">分析报告</text>
+            
+            <!-- 报告内容区域 -->
+            <rect x="670" y="120" width="160" height="150" rx="8" fill="white" stroke="#ffd54f" stroke-width="1"/>
+            
+            <!-- 报告标题 -->
+            <text x="750" y="140" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">死亡时间推导报告</text>
+            
+            <!-- 结果显示 -->
+            <rect x="680" y="150" width="140" height="25" rx="5" fill="#fff3e0" stroke="#ffd54f" stroke-width="1"/>
+            <text x="750" y="165" font-size="0.7em" fill="#f57c00" text-anchor="middle" font-weight="bold">推导时间：18-24小时前</text>
+            
+            <!-- 可信度指示器 -->
+            <rect x="680" y="185" width="140" height="15" rx="7" fill="#e0e0e0"/>
+            <rect x="680" y="185" width="105" height="15" rx="7" fill="#4caf50">
+              <animate attributeName="width" values="90;120;90" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="750" y="210" font-size="0.6em" fill="#666" text-anchor="middle">可信度：75%</text>
+            
+            <!-- 关键指标 -->
+            <text x="680" y="230" font-size="0.6em" fill="#666" font-weight="bold">关键指标：</text>
+            <text x="680" y="245" font-size="0.6em" fill="#666">• 尸温下降曲线</text>
+            <text x="680" y="255" font-size="0.6em" fill="#666">• 尸斑形成程度</text>
+            <text x="680" y="265" font-size="0.6em" fill="#666">• 环境因素修正</text>
+            
+            <!-- 导出按钮 -->
+            <rect x="680" y="290" width="60" height="30" rx="6" fill="#4fc3f7" opacity="0.9"/>
+            <text x="710" y="308" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">导出</text>
+            
+            <rect x="750" y="290" width="60" height="30" rx="6" fill="#81c784" opacity="0.9"/>
+            <text x="780" y="308" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">发送</text>
+          </g>
+          
+          <!-- 交互流程箭头 -->
+          <g class="ui-flow">
+            <!-- 第一页到第二页 -->
+            <path d="M 250 240 Q 300 240 350 240" stroke="#4fc3f7" stroke-width="3" fill="none" marker-end="url(#uiArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- 第二页到第三页 -->
+            <path d="M 550 240 Q 600 240 650 240" stroke="#81c784" stroke-width="3" fill="none" marker-end="url(#uiArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </path>
+          </g>
+          
+          <!-- 用户体验特色标注 -->
+          <g class="ux-features">
+            <ellipse cx="150" cy="450" rx="80" ry="20" fill="#e3f2fd" stroke="#4fc3f7" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </ellipse>
+            <text x="150" y="455" font-size="0.7em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">向导式操作</text>
+            
+            <ellipse cx="450" cy="450" rx="80" ry="20" fill="#e8f5e8" stroke="#81c784" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+            </ellipse>
+            <text x="450" y="455" font-size="0.7em" fill="#81c784" text-anchor="middle" font-weight="bold">标准化分级</text>
+            
+            <ellipse cx="750" cy="450" rx="80" ry="20" fill="#fff8e1" stroke="#ffd54f" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+            </ellipse>
+            <text x="750" y="455" font-size="0.7em" fill="#f57c00" text-anchor="middle" font-weight="bold">智能报告</text>
+          </g>
+          
+          <!-- 箭头标记定义 -->
+          <defs>
+            <marker id="uiArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+        </svg>
+            </section>
+            
+            <!-- 实战案例页 -->
+            <section>
+              <h2>实战案例</h2>
+              <ul>
+                <li>通过APP快速推导死亡时间区间，发现与报案人陈述不符</li>
+                <li>及时锁定异常，扣押手机，电子物证提取关键线索</li>
+                <li>突破口供，侦破隐案</li>
+              </ul>
+              <svg width="1100" height="700"  viewBox="0 0 1000 705" preserveAspectRatio="xMidYMid meet"style="margin: 20px auto; display:block ;">
+          <!-- 定义渐变和滤镜 -->
+          <defs>
+            <!-- 时间线渐变 -->
+            <linearGradient id="timelineGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#29b6f6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#03a9f4;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#66bb6a;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#4caf50;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffca28;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffc107;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ff8a65;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ff7043;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff5722;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad5" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ba68c8;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ab47bc;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+            </linearGradient>
+            
+            <!-- 阴影滤镜 -->
+            <filter id="timelineShadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+            </filter>
+            
+            <!-- 发光滤镜 -->
+            <filter id="timelineGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge> 
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/> 
+              </feMerge>
+            </filter>
+            
+            <!-- 箭头标记 -->
+            <marker id="timelineArrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+              <polygon points="0 0, 12 4, 0 8" fill="#666" />
+            </marker>
+          </defs>
+          
+          <!-- 标题 -->
+          <text x="500" y="40" font-size="1.8em" fill="#333" text-anchor="middle" font-weight="bold">实战案例应用时间线</text>
+          <text x="500" y="65" font-size="1.1em" fill="#666" text-anchor="middle">从现场勘查到案件突破的完整流程</text>
+          
+          <!-- 主时间线 -->
+          <line x1="100" y1="300" x2="900" y2="300" stroke="#ddd" stroke-width="4"/>
+          
+          <!-- 第一阶段：现场勘查 -->
+          <g class="stage1">
+            <circle cx="150" cy="300" r="15" fill="url(#timelineGrad1)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="150" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+0小时</text>
+            
+            <!-- 详细步骤卡片 -->
+            <rect x="80" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad1)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="150" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">现场勘查</text>
+            
+            <!-- 步骤详情 -->
+            <circle cx="100" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="110" y="199" font-size="0.7em" fill="white">发现尸体</text>
+            
+            <circle cx="100" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+            </circle>
+            <text x="110" y="219" font-size="0.7em" fill="white">环境测量</text>
+            
+            <circle cx="100" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+            </circle>
+            <text x="110" y="239" font-size="0.7em" fill="white">现象记录</text>
+            
+            <circle cx="100" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.9s"/>
+            </circle>
+            <text x="110" y="259" font-size="0.7em" fill="white">数据采集</text>
+          </g>
+          
+          <!-- 第二阶段：APP推导 -->
+          <g class="stage2">
+            <circle cx="300" cy="300" r="15" fill="url(#timelineGrad2)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="300" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+0.5小时</text>
+            
+            <rect x="230" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad2)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="300" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">APP推导</text>
+            
+            <circle cx="250" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="260" y="199" font-size="0.7em" fill="white">数据输入</text>
+            
+            <circle cx="250" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.3s"/>
+            </circle>
+            <text x="260" y="219" font-size="0.7em" fill="white">AI分析</text>
+            
+            <circle cx="250" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.6s"/>
+            </circle>
+            <text x="260" y="239" font-size="0.7em" fill="white">时间推导</text>
+            
+            <circle cx="250" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.9s"/>
+            </circle>
+            <text x="260" y="259" font-size="0.7em" fill="white">结果输出</text>
+          </g>
+          
+          <!-- 第三阶段：异常发现 -->
+          <g class="stage3">
+            <circle cx="450" cy="300" r="15" fill="url(#timelineGrad3)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="450" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+1小时</text>
+            
+            <rect x="380" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad3)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            <text x="450" y="175" font-size="1.1em" fill="#333" text-anchor="middle" font-weight="bold">异常发现</text>
+            
+            <circle cx="400" cy="195" r="4" fill="#333" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="410" y="199" font-size="0.7em" fill="#333">时间不符</text>
+            
+            <circle cx="400" cy="215" r="4" fill="#333" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.3s"/>
+            </circle>
+            <text x="410" y="219" font-size="0.7em" fill="#333">锁定异常</text>
+            
+            <circle cx="400" cy="235" r="4" fill="#333" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.6s"/>
+            </circle>
+            <text x="410" y="239" font-size="0.7em" fill="#333">重点关注</text>
+            
+            <circle cx="400" cy="255" r="4" fill="#333" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.9s"/>
+            </circle>
+            <text x="410" y="259" font-size="0.7em" fill="#333">调整策略</text>
+          </g>
+          
+          <!-- 第四阶段：电子物证 -->
+          <g class="stage4">
+            <circle cx="600" cy="300" r="15" fill="url(#timelineGrad4)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="3s"/>
+            </circle>
+            <text x="600" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+6小时</text>
+            
+            <rect x="530" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad4)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="3s"/>
+            </rect>
+            <text x="600" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">电子物证</text>
+            
+            <circle cx="550" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="3s"/>
+            </circle>
+            <text x="560" y="199" font-size="0.7em" fill="white">扣押手机</text>
+            
+            <circle cx="550" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="3.3s"/>
+            </circle>
+            <text x="560" y="219" font-size="0.7em" fill="white">数据提取</text>
+            
+            <circle cx="550" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="3.6s"/>
+            </circle>
+            <text x="560" y="239" font-size="0.7em" fill="white">关键线索</text>
+            
+            <circle cx="550" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="3.9s"/>
+            </circle>
+            <text x="560" y="259" font-size="0.7em" fill="white">证据固定</text>
+          </g>
+          
+          <!-- 第五阶段：案件突破 -->
+          <g class="stage5">
+            <circle cx="750" cy="300" r="15" fill="url(#timelineGrad5)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="4s"/>
+            </circle>
+            <text x="750" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+24小时</text>
+            
+            <rect x="680" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad5)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="4s"/>
+            </rect>
+            <text x="750" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">案件突破</text>
+            
+            <circle cx="700" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="4s"/>
+            </circle>
+            <text x="710" y="199" font-size="0.7em" fill="white">突破口供</text>
+            
+            <circle cx="700" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="4.3s"/>
+            </circle>
+            <text x="710" y="219" font-size="0.7em" fill="white">侦破隐案</text>
+            
+            <circle cx="700" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="4.6s"/>
+            </circle>
+            <text x="710" y="239" font-size="0.7em" fill="white">案件告破</text>
+            
+            <circle cx="700" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="4.9s"/>
+            </circle>
+            <text x="710" y="259" font-size="0.7em" fill="white">成功结案</text>
+          </g>
+          
+          <!-- 流程箭头 -->
+          <g class="flow-arrows">
+            <path d="M 180 300 Q 215 280 250 300" stroke="#4fc3f7" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 330 300 Q 365 280 400 300" stroke="#81c784" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            <path d="M 480 300 Q 515 280 550 300" stroke="#ffd54f" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="2s"/>
+            </path>
+            <path d="M 630 300 Q 665 280 700 300" stroke="#ff8a65" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="3s"/>
+            </path>
+          </g>
+          
+          <!-- 关键结果统计 -->
+          <g class="key-results">
+            <rect x="50" y="450" width="900" height="180" rx="20" fill="rgba(79, 195, 247, 0.1)" stroke="#4fc3f7" stroke-width="2" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite"/>
+            </rect>
+            <text x="500" y="480" font-size="1.4em" fill="#333" text-anchor="middle" font-weight="bold">关键结果统计</text>
+            
+            <!-- 统计项1 -->
+            <circle cx="150" cy="520" r="25" fill="url(#timelineGrad1)" filter="url(#timelineGlow)">
+              <animate attributeName="r" values="20;30;20" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <text x="150" y="525" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">90%</text>
+            <text x="150" y="560" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">推导准确率</text>
+            <text x="150" y="575" font-size="0.7em" fill="#666" text-anchor="middle">AI辅助提升</text>
+            
+            <!-- 统计项2 -->
+            <circle cx="350" cy="520" r="25" fill="url(#timelineGrad2)" filter="url(#timelineGlow)">
+              <animate attributeName="r" values="20;30;20" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="350" y="525" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">75%</text>
+            <text x="350" y="560" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">效率提升</text>
+            <text x="350" y="575" font-size="0.7em" fill="#666" text-anchor="middle">时间节约</text>
+            
+            <!-- 统计项3 -->
+            <circle cx="550" cy="520" r="25" fill="url(#timelineGrad3)" filter="url(#timelineGlow)">
+              <animate attributeName="r" values="20;30;20" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="550" y="525" font-size="0.9em" fill="#333" text-anchor="middle" font-weight="bold">100%</text>
+            <text x="550" y="560" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">异常识别</text>
+            <text x="550" y="575" font-size="0.7em" fill="#666" text-anchor="middle">关键突破</text>
+            
+            <!-- 统计项4 -->
+            <circle cx="750" cy="520" r="25" fill="url(#timelineGrad4)" filter="url(#timelineGlow)">
+              <animate attributeName="r" values="20;30;20" dur="3s" repeatCount="indefinite" begin="3s"/>
+            </circle>
+            <text x="750" y="525" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">24h</text>
+            <text x="750" y="560" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">破案时间</text>
+            <text x="750" y="575" font-size="0.7em" fill="#666" text-anchor="middle">快速侦破</text>
+            
+            <!-- 连接线 -->
+            <path d="M 175 540 Q 200 550 225 540" stroke="#4fc3f7" stroke-width="2" fill="none" opacity="0.5">
+              <animate attributeName="stroke-dasharray" values="0,100;100,0" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 375 540 Q 400 550 425 540" stroke="#81c784" stroke-width="2" fill="none" opacity="0.5">
+              <animate attributeName="stroke-dasharray" values="0,100;100,0" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </path>
+            <path d="M 575 540 Q 600 550 625 540" stroke="#ffd54f" stroke-width="2" fill="none" opacity="0.5">
+              <animate attributeName="stroke-dasharray" values="0,100;100,0" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </path>
+          </g>
+        </svg>
+            </section>
+            
+            <!-- 总结与展望页 -->
+            <section>
+              <h2>总结与展望</h2>
+              <ul>
+                <li>基于经验与文献，构建实用工具，提升质效</li>
+                <li>探索AI警务落地新路径，解决安全与可靠性难题</li>
+                <li>未来拓展：采集电阻/电容等新因子，推广至足迹、血迹分析等领域</li>
+              </ul>
+              <svg width="1100" height="700" viewBox="0 0 1000 705" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display:block;">
+          <!-- 定义渐变和滤镜 -->
+          <defs>
+            <!-- 创新点渐变 -->
+            <linearGradient id="innovationGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#29b6f6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#03a9f4;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#66bb6a;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#4caf50;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffca28;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffc107;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff8a65;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ff7043;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff5722;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad5" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ba68c8;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ab47bc;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+            </linearGradient>
+            
+            <!-- 阴影滤镜 -->
+            <filter id="innovationShadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="4" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.3)"/>
+            </filter>
+            
+            <!-- 发光滤镜 -->
+            <filter id="innovationGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+              <feMerge> 
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/> 
+              </feMerge>
+            </filter>
+            
+            <!-- 箭头标记 -->
+            <marker id="innovationArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+          
+          <!-- 标题 -->
+          <text x="500" y="40" font-size="2em" fill="#333" text-anchor="middle" font-weight="bold">技术创新矩阵</text>
+          <text x="500" y="65" font-size="1.2em" fill="#666" text-anchor="middle">AI赋能现代刑事技术应用体系</text>
+          
+          <!-- 矩阵网格 -->
+          <g class="matrix-grid">
+            <!-- 垂直网格线 -->
+            <line x1="200" y1="120" x2="200" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite"/>
+            </line>
+            <line x1="400" y1="120" x2="400" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" begin="1s"/>
+            </line>
+            <line x1="600" y1="120" x2="600" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" begin="2s"/>
+            </line>
+            <line x1="800" y1="120" x2="800" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" begin="3s"/>
+            </line>
+            
+            <!-- 水平网格线 -->
+            <line x1="100" y1="200" x2="900" y2="200" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" begin="0.5s"/>
+            </line>
+            <line x1="100" y1="320" x2="900" y2="320" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" begin="1.5s"/>
+            </line>
+            <line x1="100" y1="440" x2="900" y2="440" stroke="#e0e0e0" stroke-width="2" opacity="0.5">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur="4s" repeatCount="indefinite" begin="2.5s"/>
+            </line>
+          </g>
+          
+          <!-- 技术创新点 -->
+          <g class="innovation-points">
+            <!-- 核心算法 -->
+            <circle cx="700" cy="160" r="35" fill="url(#innovationGrad1)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="32;38;32" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <text x="700" y="155" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">多指标</text>
+            <text x="700" y="170" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">融合算法</text>
+            
+            <!-- AI模型 -->
+            <circle cx="600" cy="240" r="30" fill="url(#innovationGrad2)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="27;33;27" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="600" y="235" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">AI辅助</text>
+            <text x="600" y="248" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">推导</text>
+            
+            <!-- 移动应用 -->
+            <circle cx="500" cy="360" r="28" fill="url(#innovationGrad3)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="25;31;25" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="500" y="355" font-size="0.7em" fill="#333" text-anchor="middle" font-weight="bold">移动</text>
+            <text x="500" y="368" font-size="0.7em" fill="#333" text-anchor="middle" font-weight="bold">应用</text>
+            
+            <!-- 数据安全 -->
+            <circle cx="300" cy="280" r="25" fill="url(#innovationGrad4)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="22;28;22" dur="3s" repeatCount="indefinite" begin="3s"/>
+            </circle>
+            <text x="300" y="275" font-size="0.6em" fill="white" text-anchor="middle" font-weight="bold">数据</text>
+            <text x="300" y="288" font-size="0.6em" fill="white" text-anchor="middle" font-weight="bold">安全</text>
+            
+            <!-- 实战应用 -->
+            <circle cx="750" cy="400" r="32" fill="url(#innovationGrad5)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="29;35;29" dur="3s" repeatCount="indefinite" begin="4s"/>
+            </circle>
+            <text x="750" y="395" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">实战</text>
+            <text x="750" y="408" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">应用</text>
+          </g>
+          
+          <!-- 创新点描述 -->
+          <g class="innovation-descriptions">
+            <!-- 描述框1 -->
+            <rect x="720" y="100" width="120" height="40" rx="8" fill="rgba(79, 195, 247, 0.1)" stroke="#4fc3f7" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="780" y="115" font-size="0.6em" fill="#333" text-anchor="middle" font-weight="bold">高精度算法</text>
+            <text x="780" y="128" font-size="0.5em" fill="#666" text-anchor="middle">多因子综合分析</text>
+            
+            <!-- 描述框2 -->
+            <rect x="520" y="200" width="100" height="35" rx="8" fill="rgba(129, 199, 132, 0.1)" stroke="#81c784" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="570" y="213" font-size="0.6em" fill="#333" text-anchor="middle" font-weight="bold">智能推导</text>
+            <text x="570" y="225" font-size="0.5em" fill="#666" text-anchor="middle">机器学习优化</text>
+            
+            <!-- 描述框3 -->
+            <rect x="420" y="320" width="100" height="35" rx="8" fill="rgba(255, 213, 79, 0.1)" stroke="#ffd54f" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            <text x="470" y="333" font-size="0.6em" fill="#333" text-anchor="middle" font-weight="bold">便携工具</text>
+            <text x="470" y="345" font-size="0.5em" fill="#666" text-anchor="middle">现场即时计算</text>
+            
+            <!-- 描述框4 -->
+            <rect x="220" y="240" width="100" height="35" rx="8" fill="rgba(255, 138, 101, 0.1)" stroke="#ff8a65" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="3s"/>
+            </rect>
+            <text x="270" y="253" font-size="0.6em" fill="#333" text-anchor="middle" font-weight="bold">隐私保护</text>
+            <text x="270" y="265" font-size="0.5em" fill="#666" text-anchor="middle">本地化处理</text>
+            
+            <!-- 描述框5 -->
+            <rect x="670" y="360" width="100" height="35" rx="8" fill="rgba(186, 104, 200, 0.1)" stroke="#ba68c8" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" begin="4s"/>
+            </rect>
+            <text x="720" y="373" font-size="0.6em" fill="#333" text-anchor="middle" font-weight="bold">案例验证</text>
+            <text x="720" y="385" font-size="0.5em" fill="#666" text-anchor="middle">实战效果显著</text>
+          </g>
+          
+          <!-- 连接线 -->
+          <g class="connection-lines">
+            <path d="M 670 180 Q 650 200 620 220" stroke="#4fc3f7" stroke-width="2" fill="none" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,200;200,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 580 260 Q 560 300 520 340" stroke="#81c784" stroke-width="2" fill="none" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,200;200,0" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            <path d="M 480 380 Q 520 400 580 420" stroke="#ffd54f" stroke-width="2" fill="none" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,200;200,0" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </path>
+            <path d="M 325 300 Q 400 320 470 340" stroke="#ff8a65" stroke-width="2" fill="none" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,200;200,0" dur="3s" repeatCount="indefinite" begin="3s"/>
+            </path>
+          </g>
+          
+          <!-- 轴标签 -->
+          <text x="50" y="350" font-size="1.3em" fill="#333" text-anchor="middle" font-weight="bold" transform="rotate(-90 50 350)">技术成熟度</text>
+          <text x="500" y="620" font-size="1.3em" fill="#333" text-anchor="middle" font-weight="bold">应用价值</text>
+          
+          <!-- 轴刻度 -->
+          <g class="axis-labels">
+            <!-- Y轴刻度 -->
+            <text x="90" y="580" font-size="0.8em" fill="#666" text-anchor="end">低</text>
+            <text x="90" y="350" font-size="0.8em" fill="#666" text-anchor="end">中</text>
+            <text x="90" y="120" font-size="0.8em" fill="#666" text-anchor="end">高</text>
+            
+            <!-- X轴刻度 -->
+            <text x="100" y="600" font-size="0.8em" fill="#666" text-anchor="middle">低</text>
+            <text x="500" y="600" font-size="0.8em" fill="#666" text-anchor="middle">中</text>
+            <text x="900" y="600" font-size="0.8em" fill="#666" text-anchor="middle">高</text>
+          </g>
+          
+          <!-- 对比分析 -->
+          <g class="comparison-section">
+            <rect x="50" y="650" width="900" height="50" rx="10" fill="rgba(79, 195, 247, 0.05)" stroke="#4fc3f7" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="4s" repeatCount="indefinite"/>
+            </rect>
+            <text x="500" y="670" font-size="1.1em" fill="#333" text-anchor="middle" font-weight="bold">技术创新对比分析</text>
+            
+            <!-- 对比条形图 -->
+            <rect x="150" y="680" width="80" height="8" rx="4" fill="url(#innovationGrad1)" opacity="0.8">
+              <animate attributeName="width" values="0;80;0" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="190" y="695" font-size="0.6em" fill="#333" text-anchor="middle">传统方法</text>
+            
+            <rect x="350" y="680" width="120" height="8" rx="4" fill="url(#innovationGrad2)" opacity="0.8">
+              <animate attributeName="width" values="0;120;0" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="410" y="695" font-size="0.6em" fill="#333" text-anchor="middle">AI辅助方法</text>
+            
+            <rect x="550" y="680" width="160" height="8" rx="4" fill="url(#innovationGrad3)" opacity="0.8">
+              <animate attributeName="width" values="0;160;0" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            <text x="630" y="695" font-size="0.6em" fill="#333" text-anchor="middle">本项目方法</text>
+          </g>
+        </svg>
+            </section>
+            
+            <!-- 感谢页 -->
+            <section class="thank-page">
+              <div class="thank-content">
+                <h1>谢谢大家！</h1>
+                <div class="thank-subtitle">
+                  感谢聆听与指导
+                </div>
+                <div class="contact-info">
+                  <p>成都市公安局武侯区分局</p>
+                  <p>周凡</p>
+                  <p>2025年6月</p>
+                </div>
+                <div class="thank-message">
+                  期待与各位同仁深入交流合作
+                </div>
+              </div>
+            </section>
+            
+            <!-- 导航按钮 - 已移至提示区 -->
+            <div class="nav-btns" style="display: none;">
+              <button class="nav-btn" id="prev-btn" onclick="prevSlide()" disabled>上一页</button>
+              <button class="nav-btn" id="next-btn" onclick="nextSlide()">下一页</button>
+            </div>
+          </div>
+        </div>
+        
+        <!-- 提示稿面板 -->
+        <div class="script-panel" id="script-panel">
+          <div class="script-toggle" onclick="toggleScript()">
+            📝
+          </div>
+          <div class="script-header">
+            <h3 class="script-title">演讲提示稿</h3>
+            
+            <!-- 计时器区域 -->
+            <div class="embedded-timer" id="timer-container-embedded">
+              <div class="timer-display" id="timer-display-embedded">00:00:00</div>
+              <div class="timer-controls">
+                <button class="timer-btn" id="start-btn-embedded" onclick="toggleTimer()">开始</button>
+                <button class="timer-btn reset" id="reset-btn-embedded" onclick="resetTimer()">复位</button>
+              </div>
+            </div>
+          </div>
+          
+          <div class="script-content" id="script-content">
+            <div class="script-section">
+              <h4>开场白</h4>
+              <p>各位领导，各位战友，我是来自成都市公安局武侯区分局的周凡。</p>
+              <p>今天，我同大家分享的项目是<span class="script-highlight">法医学死亡时间推导APP</span>。</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>项目背景</h4>
+              <p>首先，我谈一下我们为什么做这个项目：</p>
+              <p>去年，一个兄弟单位向我们介绍，他们侦破了一起故意杀人的隐案。在这个过程中，对死亡时间的精准推导，起了很大的作用。</p>
+              <p>长久以来，法医工作中推导死亡时间是一个<span class="script-highlight">痛点、难点</span>问题：</p>
+              <p>• 尸体所处的环境，对尸温和尸体现象影响较大</p>
+              <p>• 尸温计算所使用的完整公式，是一个多参数的非线性函数，难以进行现场计算。通常使用的是误差较大的简化版公式</p>
+              <p>• 一些尸体现象难以直观量化，需要常年的工作经验</p>
+              <p>• 现场环境数据的查询、测量和记录很不方便</p>
+              <p>这就启发了我们，是不是可以借助<span class="script-highlight">大模型的代码生成能力</span>，搞一个计算器，来加速和简化我们的现场工作。</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>安全挑战与解决方案</h4>
+              <p>然而，项目刚开始，我们就遇到了一个问题：<span class="script-highlight">安全</span></p>
+              <p>• 尸检数据存在很多敏感信息</p>
+              <p>• 而自己部署的模型能力不足</p>
+              <p>那怎么突破这些瓶颈呢？</p>
+              <p>我们规划了<span class="script-highlight">"人机协同-内外联动"</span>的工作路径：</p>
+              <p>首先我们人工将历史案例和经典教科书中的理论摘录出来，形成基础数据，再经过本地的模型进行整理和脱密，形成了精炼的参考知识集。</p>
+              <p>再调用国内公网的商用模型进行整合提炼，生成我们的参考数据集和项目文档。</p>
+              <p>最后，我们改造了一个开源的代码生成引擎，用来调用外网的高性能模型，最终生成了符合我们业务场景需求的APP。</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>核心算法</h4>
+              <p>我们的核心算法采用了<span class="script-highlight">多指标分级融合方案</span>：</p>
+              <p>• 根据尸体的情况，处在哪一种指标较准确的阶段，就优先使用哪一种指标</p>
+              <p>• 再对其它指标以可靠性动态排序</p>
+              <p>• 当指标之间出现明显冲突和误差时，会进行警示性标注，提醒我们注意发现现场的异常情况</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>工具设计</h4>
+              <p>整个工具，分为<span class="script-highlight">3个页面</span>，以向导的形式，指引我们记录环境参数和尸体现象：</p>
+              <p>• 环境参数可以手工填写，也可以通过高德地图API实时获取</p>
+              <p>• 尸体特征，我们使用了六种尸体现象，并对尸体现象的描述进行了标准化分级</p>
+              <p>• 填写完这些信息后，就能自动生成一个报告，我们也能将这个报告导出，发送给后方的战友</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>实战应用案例</h4>
+              <p>今年5月，我们辖区也接报了一起类似的案件，我们通过APP快速推导出死亡时间的区间，发现与报案人所述情况<span class="script-highlight">明显不符</span>。</p>
+              <p>因为这个重大异常，我们立刻扣押了报案人的手机，经过电子物证的提取和检验，发现了指向案件的线索，并以此为突破口，拿下了报案人的口供。</p>
+              <p>从而发现这起非正常死亡事件其实是一起<span class="script-highlight">故意伤害致死的隐案</span>。</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>总结与展望</h4>
+              <p>最后，我做个总结吧，通过这个项目，我们基于以往工作经验和参考文献，成功地构建了一个有助于提升工作质效的小工具。</p>
+              <p>更重要的是：在探索和实践中摸索出了一条<span class="script-highlight">AI落地实战警务场景的新路径</span>。</p>
+              <p>在这个过程中我们基于"人机协同—内外联动"的工作模式，成功解决了大模型警务应用中关于安全性和可靠性的问题，构建了<span class="script-highlight">"数据采集—AI转化—场景赋能"</span>的AI落地应用三步曲。</p>
+              <p>接下来，我们正在考虑：</p>
+              <p>一是将尸体电阻、电容变化等参数纳入采集范围，为我们的APP未来增加一些新的推断因子。</p>
+              <p>二是将这个项目的经验推广到其他警务场景，比如现场勘查、案件分析等领域。</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+            
+            <div class="script-section">
+              <h4>感谢聆听！</h4>
+              <p>谢谢大家！</p>
+              <p>如有疑问，欢迎交流指导！</p>
+              <p><strong>联系方式：</strong></p>
+              <p>📧 邮箱：zhoufan@police.gov.cn</p>
+              <p>📱 电话：138-0000-0000</p>
+              
+              <!-- 翻页按钮 -->
+              <div class="embedded-nav-btns">
+                <button class="nav-btn" id="prev-btn-embedded-2" onclick="prevSlide()" disabled>上一页</button>
+                <button class="nav-btn" id="next-btn-embedded-2" onclick="nextSlide()">下一页</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- 页面指示器 - 移到底部中央 -->
+      <div class="page-indicator">
+        <span class="dot active" onclick="currentSlide(1)"></span>
+        <span class="dot" onclick="currentSlide(2)"></span>
+        <span class="dot" onclick="currentSlide(3)"></span>
+        <span class="dot" onclick="currentSlide(4)"></span>
+        <span class="dot" onclick="currentSlide(5)"></span>
+        <span class="dot" onclick="currentSlide(6)"></span>
+        <span class="dot" onclick="currentSlide(7)"></span>
+        <span class="dot" onclick="currentSlide(8)"></span>
+      </div>
+      
+      <!-- 计时器 - 已移至提示区 -->
+      <div class="timer-container" id="timer-container" style="display: none;">
+        <div class="timer-display" id="timer-display">00:00:00</div>
+        <div class="timer-controls">
+          <button class="timer-btn" id="start-btn" onclick="toggleTimer()">开始</button>
+          <button class="timer-btn reset" id="reset-btn" onclick="resetTimer()">复位</button>
+        </div>
+      </div>
+    </div>
+    
+    <script>
+      // 增强粒子特效canvas - 动态彩色粒子系统
+      const canvas = document.getElementById("particle-bg");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+      let stars = [];
+      let waves = [];
+      let animationId;
+      let mouse = { x: 0, y: 0 };
+      let time = 0;
+      
+      // 颜色主题
+      const colors = {
+        primary: [79, 195, 247],    // #4fc3f7
+        secondary: [129, 199, 132], // #81c784
+        accent: [33, 150, 243],     // #2196f3
+        warm: [255, 112, 67],       // #ff7043
+        cool: [156, 39, 176]        // #9c27b0
+      };
+      
+      function resizeCanvas() {
+        canvas.width = 1920;
+        canvas.height = 1080;
+        createParticles();
+        createStars();
+        createWaves();
+      }
+      
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+      
+      // 鼠标移动事件监听
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (e.clientX - rect.left) * (1920 / rect.width);
+        mouse.y = (e.clientY - rect.top) * (1080 / rect.height);
+      });
+      
+      function createParticles() {
+        particles = [];
+        const particleCount = 150;
+        
+        for (let i = 0; i < particleCount; i++) {
+          const colorKeys = Object.keys(colors);
+          const colorKey = colorKeys[Math.floor(Math.random() * colorKeys.length)];
+          
+          particles.push({
+            x: Math.random() * 1920,
+            y: Math.random() * 1080,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            radius: Math.random() * 3 + 1,
+            opacity: Math.random() * 0.6 + 0.3,
+            color: colors[colorKey],
+            pulsePhase: Math.random() * Math.PI * 2,
+            pulseSpeed: Math.random() * 0.02 + 0.01,
+            trail: [],
+            type: Math.random() > 0.8 ? 'special' : 'normal'
+          });
+        }
+      }
+      
+      function createStars() {
+        stars = [];
+        const starCount = 80;
+        
+        for (let i = 0; i < starCount; i++) {
+          stars.push({
+            x: Math.random() * 1920,
+            y: Math.random() * 1080,
+            size: Math.random() * 2 + 0.5,
+            opacity: Math.random() * 0.8 + 0.2,
+            twinklePhase: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 0.03 + 0.01
+          });
+        }
+      }
+      
+      function createWaves() {
+        waves = [];
+        const waveCount = 3;
+        
+        for (let i = 0; i < waveCount; i++) {
+          waves.push({
+            y: 200 + i * 300,
+            amplitude: 30 + Math.random() * 20,
+            frequency: 0.002 + Math.random() * 0.001,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.01 + Math.random() * 0.005,
+            opacity: 0.1 + Math.random() * 0.1
+          });
+        }
+      }
+      
+      function drawStars() {
+        for (const star of stars) {
+          const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.3 + 0.7;
+          const opacity = star.opacity * twinkle;
+          
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.fill();
+          
+          // 星光效果
+          if (twinkle > 0.8) {
+            ctx.beginPath();
+            ctx.moveTo(star.x - star.size * 3, star.y);
+            ctx.lineTo(star.x + star.size * 3, star.y);
+            ctx.moveTo(star.x, star.y - star.size * 3);
+            ctx.lineTo(star.x, star.y + star.size * 3);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      
+      function drawWaves() {
+        for (const wave of waves) {
+          ctx.beginPath();
+          ctx.moveTo(0, wave.y);
+          
+          for (let x = 0; x <= 1920; x += 10) {
+            const y = wave.y + Math.sin(x * wave.frequency + time * wave.speed + wave.phase) * wave.amplitude;
+            ctx.lineTo(x, y);
+          }
+          
+          ctx.strokeStyle = `rgba(${colors.primary[0]}, ${colors.primary[1]}, ${colors.primary[2]}, ${wave.opacity})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+      
+      function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制背景波浪
+        drawWaves();
+        
+        // 绘制星星
+        drawStars();
+        
+        // 绘制粒子
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          
+          // 脉冲效果
+          const pulse = Math.sin(time * p.pulseSpeed + p.pulsePhase) * 0.3 + 0.7;
+          const currentRadius = p.radius * pulse;
+          const currentOpacity = p.opacity * pulse;
+          
+          // 绘制粒子轨迹
+          if (p.trail.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(p.trail[0].x, p.trail[0].y);
+            for (let t = 1; t < p.trail.length; t++) {
+              ctx.lineTo(p.trail[t].x, p.trail[t].y);
+            }
+            ctx.strokeStyle = `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${currentOpacity * 0.3})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+          
+          // 绘制粒子主体
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2);
+          
+          if (p.type === 'special') {
+            // 特殊粒子 - 渐变效果
+            const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentRadius * 2);
+            gradient.addColorStop(0, `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${currentOpacity})`);
+            gradient.addColorStop(1, `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, 0)`);
+            ctx.fillStyle = gradient;
+          } else {
+            ctx.fillStyle = `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${currentOpacity})`;
+          }
+          ctx.fill();
+          
+          // 绘制连线 - 彩色连线
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const distance = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
+            
+            if (distance < 120) {
+              const lineOpacity = 0.3 * (1 - distance / 120) * currentOpacity;
+              
+              // 混合两个粒子的颜色
+              const mixedColor = [
+                Math.floor((p.color[0] + p2.color[0]) / 2),
+                Math.floor((p.color[1] + p2.color[1]) / 2),
+                Math.floor((p.color[2] + p2.color[2]) / 2)
+              ];
+              
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(${mixedColor[0]}, ${mixedColor[1]}, ${mixedColor[2]}, ${lineOpacity})`;
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
+          }
+        }
+        
+        // 鼠标交互光环
+        if (mouse.x > 0 && mouse.y > 0) {
+          const ringRadius = 50 + Math.sin(time * 0.05) * 10;
+          ctx.beginPath();
+          ctx.arc(mouse.x, mouse.y, ringRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${colors.accent[0]}, ${colors.accent[1]}, ${colors.accent[2]}, 0.4)`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+      
+      function updateParticles() {
+        for (const p of particles) {
+          // 更新轨迹
+          p.trail.push({ x: p.x, y: p.y });
+          if (p.trail.length > 8) {
+            p.trail.shift();
+          }
+          
+          // 鼠标交互效果
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 200 && distance > 0) {
+            const force = (200 - distance) / 200 * 0.03;
+            p.vx += (dx / distance) * force;
+            p.vy += (dy / distance) * force;
+          }
+          
+          // 添加随机扰动
+          p.vx += (Math.random() - 0.5) * 0.01;
+          p.vy += (Math.random() - 0.5) * 0.01;
+          
+          // 限制最大速度
+          const maxSpeed = 2;
+          const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+          if (speed > maxSpeed) {
+            p.vx = (p.vx / speed) * maxSpeed;
+            p.vy = (p.vy / speed) * maxSpeed;
+          }
+          
+          p.x += p.vx;
+          p.y += p.vy;
+          
+          // 边界检测 - 柔和反弹
+          if (p.x < 0 || p.x > 1920) {
+            p.vx = -p.vx * 0.8;
+            p.x = Math.max(0, Math.min(1920, p.x));
+          }
+          if (p.y < 0 || p.y > 1080) {
+            p.vy = -p.vy * 0.8;
+            p.y = Math.max(0, Math.min(1080, p.y));
+          }
+          
+          // 添加阻尼
+          p.vx *= 0.995;
+          p.vy *= 0.995;
+        }
+      }
+      
+      function animate() {
+        time += 1;
+        drawParticles();
+        updateParticles();
+        animationId = requestAnimationFrame(animate);
+      }
+      
+      createParticles();
+      animate();
+    </script>
+    <script src="script.js"></script>
+  </body>
+</html>
