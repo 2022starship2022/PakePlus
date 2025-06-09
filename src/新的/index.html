@@ -1,0 +1,2791 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>法医学死亡时间推导APP 项目分享</title>
+    <style>
+      html {
+        width: 100vw;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start; /* Align to top */
+        overflow: hidden; /* Disable scroll */
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        background: #181c24;
+        color: #fff;
+        font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+        width: 1920px;
+        height: 1080px;
+        padding: 0;
+        padding-top: 80px; /* Adjust top padding to shift content down a bit from the very top */
+        box-sizing: border-box;
+        /* overflow: hidden; */ /* Allow content to be visible */
+        position: relative; /* Keep for children positioning */
+      }
+      #ppt-root {
+        position: absolute;
+        left:-150px;
+        top: -60px;
+        width: 1600px;
+        height: 900px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 8px 48px #0008;
+        background: transparent;
+        border-radius: 18px;
+        overflow: hidden;
+        z-index: 1;
+      }
+      #particle-bg {
+        position: fixed; /* Position relative to the viewport */
+        top: 0;
+        left: 0;
+        width: 100vw; /* Full viewport width */
+        height: 100vh; /* Full viewport height */
+        z-index: -1; /* Ensure it's behind all other content */
+        pointer-events: none;
+      }
+
+      header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);
+        padding: 35px 0 22px 0;
+        text-align: center;
+        box-shadow: 0 4px 20px rgba(79, 195, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        position: relative;
+        overflow: hidden;
+      }
+      header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        animation: headerShimmer 8s ease-in-out infinite;
+      }
+      h1 {
+        font-size: 51px;
+        font-weight: 800;
+        letter-spacing: 3px;
+        margin: 0 0 13px 0;
+        text-shadow: 0 2px 8px rgba(0,0,0,0.5), 0 0 20px rgba(79, 195, 247, 0.3);
+        background: linear-gradient(45deg, #fff, #4fc3f7, #81c784, #fff);
+        background-size: 300% 300%;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: titleGradient 4s ease-in-out infinite, titleFloat 3s ease-in-out infinite;
+        position: relative;
+        z-index: 2;
+        filter: drop-shadow(0 4px 8px rgba(79, 195, 247, 0.2));
+      }
+      h2 {
+        font-size: 28px;
+        margin: 30px 0 20px 0;
+        color: #4fc3f7;
+        font-weight: 700;
+        text-shadow: 0 2px 4px rgba(79, 195, 247, 0.5);
+        border-bottom: 2px solid #4fc3f7;
+        padding-bottom: 12px;
+        display: inline-block;
+        opacity: 0;
+        transform: translateY(-20px);
+        animation: h2Enter 0.8s ease-out 0.3s forwards;
+        position: relative;
+        top: -60px;
+        overflow: hidden;
+      }
+      h2::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+       
+        left: -100%;
+        width: 100%;
+        height: 2px;
+        background: linear-gradient(90deg, transparent, #4fc3f7, transparent);
+        animation: underlineSlide 2s ease-in-out infinite;
+      }
+      
+      @keyframes titleGradient {
+        0%, 100% {
+          background-position: 0% 50%;
+        }
+        50% {
+          background-position: 100% 50%;
+        }
+      }
+      
+      @keyframes titleFloat {
+        0%, 100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-5px);
+        }
+      }
+      
+      @keyframes h2Enter {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px) scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      @keyframes underlineSlide {
+        0% {
+          left: -100%;
+        }
+        50% {
+          left: 100%;
+        }
+        100% {
+          left: -100%;
+        }
+      }
+      
+      @keyframes headerShimmer {
+        0% {
+          left: -100%;
+        }
+        50% {
+          left: 100%;
+        }
+        100% {
+          left: -100%;
+        }
+      }
+      section {
+        margin: 0 auto;
+        width: 100%;
+        padding: 40px;
+        flex: 1;
+        display: none;
+        opacity: 0;
+        transform: translateX(100px) scale(0.95);
+        transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        background: rgba(35, 42, 54, 0.15);
+        border-radius: 12px;
+        backdrop-filter: blur(10px);
+        box-sizing: border-box;
+        overflow: hidden;
+        position: relative;
+        animation: sectionPulse 3s ease-in-out infinite;
+      }
+      section.active {
+        display: flex;
+        flex-direction: column;
+        opacity: 1;
+        transform: translateX(0) scale(1);
+        animation: sectionEnter 0.8s ease-out;
+      }
+      section.slide-out {
+        transform: translateX(-100px) scale(0.95);
+        opacity: 0;
+      }
+      
+      @keyframes sectionEnter {
+        0% {
+          opacity: 0;
+          transform: translateX(100px) scale(0.9) rotateY(15deg);
+        }
+        50% {
+          transform: translateX(-10px) scale(1.02) rotateY(-2deg);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0) scale(1) rotateY(0deg);
+        }
+      }
+      
+      @keyframes sectionPulse {
+        0%, 100% {
+          box-shadow: 0 0 20px rgba(79, 195, 247, 0.1);
+        }
+        50% {
+          box-shadow: 0 0 30px rgba(79, 195, 247, 0.2);
+        }
+      }
+     ul {
+        font-size: 18px;
+        line-height: 1.8;
+        padding-left: 0;
+        list-style: none;
+        flex: 1;
+        column-count: 2;
+        column-gap: 40px;
+        width: 100%;
+      }
+      li {
+        margin-bottom: 12px;
+        padding: 10px 20px;
+        background: linear-gradient(90deg, rgba(79, 195, 247, 0.1), rgba(129, 199, 132, 0.1));
+        border-left: 4px solid #4fc3f7;
+        border-radius: 8px;
+        position: relative;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        opacity: 0;
+        transform: translateX(-30px);
+        animation: listItemEnter 0.6s ease-out forwards;
+      }
+      li:nth-child(1) { animation-delay: 0.1s; }
+      li:nth-child(2) { animation-delay: 0.2s; }
+      li:nth-child(3) { animation-delay: 0.3s; }
+      li:nth-child(4) { animation-delay: 0.4s; }
+      li:nth-child(5) { animation-delay: 0.5s; }
+      li:nth-child(6) { animation-delay: 0.6s; }
+      li:nth-child(7) { animation-delay: 0.7s; }
+      li:nth-child(8) { animation-delay: 0.8s; }
+      li:nth-child(9) { animation-delay: 0.9s; }
+      li:nth-child(10) { animation-delay: 1.0s; }
+      
+      li:hover {
+        transform: translateX(12px) scale(1.02);
+        box-shadow: 0 6px 20px rgba(79, 195, 247, 0.3);
+        background: linear-gradient(90deg, rgba(79, 195, 247, 0.25), rgba(129, 199, 132, 0.25));
+        border-left-width: 6px;
+      }
+      
+      @keyframes listItemEnter {
+        0% {
+          opacity: 0;
+          transform: translateX(-30px) scale(0.9);
+        }
+        60% {
+          transform: translateX(5px) scale(1.02);
+        }
+        100% {
+          opacity: 1;
+          transform: translateX(0) scale(1);
+        }
+      }
+      li::before {
+        content: "▶";
+        color: #4fc3f7;
+        font-weight: bold;
+        margin-right: 8px;
+      }
+      blockquote {
+        background: linear-gradient(135deg, rgba(79, 195, 247, 0.15), rgba(129, 199, 132, 0.15));
+        border: 2px solid #4fc3f7;
+        border-radius: 12px;
+        padding: 18px 30px;
+        font-style: italic;
+        font-size: 16px;
+        color: #e1f5fe;
+        font-weight: 600;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 4px 20px rgba(79, 195, 247, 0.3);
+        backdrop-filter: blur(15px);
+        opacity: 0;
+        transform: scale(0.9) rotateX(10deg);
+        animation: blockquoteEnter 1s ease-out 0.8s forwards;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        overflow: hidden;
+      }
+      blockquote::before {
+        content: "💡";
+        font-size: 24px;
+        margin-right: 8px;
+        animation: iconBounce 2s ease-in-out infinite;
+      }
+      blockquote::after {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(79, 195, 247, 0.1), transparent);
+        transform: rotate(45deg);
+        animation: shimmer 3s ease-in-out infinite;
+        pointer-events: none;
+      }
+      blockquote:hover {
+        transform: scale(1.02) rotateX(0deg);
+        box-shadow: 0 8px 30px rgba(79, 195, 247, 0.4);
+        border-color: #81c784;
+      }
+      
+      @keyframes blockquoteEnter {
+        0% {
+          opacity: 0;
+          transform: scale(0.9) rotateX(10deg) translateY(20px);
+        }
+        60% {
+          transform: scale(1.05) rotateX(-2deg) translateY(-5px);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotateX(0deg) translateY(0);
+        }
+      }
+      
+      @keyframes iconBounce {
+        0%, 100% {
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          transform: translateY(-3px) scale(1.1);
+        }
+      }
+      
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+        50% {
+          transform: translateX(100%) translateY(100%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(-100%) translateY(-100%) rotate(45deg);
+        }
+      }
+
+      svg {
+        width: calc(100% - 24px); /* 12px margin on each side */
+        height: calc(100% - 12px); /* 12px margin on each side */
+        margin: 12px;
+        vertical-align: middle;
+        opacity: 0;
+        transform: scale(0.9);
+        animation: svgEnter 1s ease-out 1.5s forwards, svgPulse 4s ease-in-out 2.5s infinite;
+        border-radius: 15px;
+        box-shadow: 0 6px 25px rgba(79, 195, 247, 0.25), 0 2px 10px rgba(0, 0, 0, 0.1);
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(79, 195, 247, 0.03));
+        backdrop-filter: blur(15px);
+        border: 1px solid rgba(79, 195, 247, 0.2);
+        transition: all 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+      }
+      svg::before {
+        content: '';
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(79, 195, 247, 0.08), transparent);
+        animation: svgShimmer 6s ease-in-out infinite;
+        pointer-events: none;
+        z-index: 1;
+      }
+      svg:hover {
+        transform: scale(1.03) translateY(-5px);
+        box-shadow: 0 12px 40px rgba(79, 195, 247, 0.4), 0 4px 15px rgba(0, 0, 0, 0.2);
+        border-color: rgba(79, 195, 247, 0.4);
+        animation-play-state: paused;
+      }
+      
+      svg rect, svg circle, svg polygon {
+        opacity: 0;
+        animation: svgElementEnter 0.8s ease-out forwards;
+      }
+      
+      svg rect:nth-child(1) { animation-delay: 1.8s; }
+      svg rect:nth-child(2) { animation-delay: 2.0s; }
+      svg rect:nth-child(3) { animation-delay: 2.2s; }
+      svg rect:nth-child(4) { animation-delay: 2.4s; }
+      svg rect:nth-child(5) { animation-delay: 2.6s; }
+      
+      svg circle:nth-child(1) { animation-delay: 1.9s; }
+      svg circle:nth-child(2) { animation-delay: 2.1s; }
+      svg circle:nth-child(3) { animation-delay: 2.3s; }
+      
+      svg polygon { animation-delay: 2.5s; }
+      
+      svg text {
+        opacity: 0;
+        animation: textFadeIn 0.6s ease-out forwards;
+      }
+      
+      svg text:nth-child(even) { animation-delay: 2.8s; }
+      svg text:nth-child(odd) { animation-delay: 3.0s; }
+      
+      @keyframes svgEnter {
+        0% {
+          opacity: 0;
+          transform: scale(0.9) translateY(20px) rotateX(10deg);
+        }
+        50% {
+          transform: scale(1.05) translateY(-5px) rotateX(-2deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) translateY(0) rotateX(0deg);
+        }
+      }
+      
+      @keyframes svgElementEnter {
+        0% {
+          opacity: 0;
+          transform: scale(0.8) rotate(-5deg);
+        }
+        60% {
+          transform: scale(1.1) rotate(2deg);
+        }
+        100% {
+          opacity: 1;
+          transform: scale(1) rotate(0deg);
+        }
+      }
+      
+      @keyframes textFadeIn {
+        0% {
+          opacity: 0;
+          transform: translateY(10px) scale(0.9);
+        }
+        60% {
+          transform: translateY(-2px) scale(1.05);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      /* 新增SVG闪烁效果 */
+      @keyframes svgShimmer {
+        0% {
+          transform: translateX(-200%) translateY(-200%) rotate(45deg);
+        }
+        50% {
+          transform: translateX(200%) translateY(200%) rotate(45deg);
+        }
+        100% {
+          transform: translateX(-200%) translateY(-200%) rotate(45deg);
+        }
+      }
+      
+      /* SVG全局脉冲效果 */
+      @keyframes svgPulse {
+        0%, 100% {
+          box-shadow: 0 6px 25px rgba(79, 195, 247, 0.25), 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        50% {
+          box-shadow: 0 8px 35px rgba(79, 195, 247, 0.35), 0 4px 15px rgba(0, 0, 0, 0.15);
+        }
+      }
+
+
+      .nav-btns {
+        position: absolute;
+        bottom: -164px; /* 16px - 180px */
+        left: 0;
+        right: 0;
+        display: flex;
+        justify-content: center;
+        gap: 32px;
+        z-index: 10;
+        animation: navEnter 1s ease-out 1.2s both;
+      }
+      .nav-btn {
+        background: linear-gradient(135deg, #4fc3f7 0%, #81c784 50%, #4fc3f7 100%);
+        background-size: 200% 200%;
+        color: #181c24;
+        font-size: 18px;
+        font-weight: 600;
+        border: 2px solid rgba(79, 195, 247, 0.3);
+        border-radius: 32px;
+        padding: 13px 48px;
+        box-shadow: 0 4px 24px rgba(79, 195, 247, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        outline: none;
+        position: relative;
+        overflow: hidden;
+        animation: buttonBreathe 3s ease-in-out infinite;
+        transform: translateY(0);
+        backdrop-filter: blur(10px);
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      }
+      .nav-btn:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 8px 32px rgba(79, 195, 247, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        background-position: 100% 100%;
+        border-color: rgba(79, 195, 247, 0.5);
+        text-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+      }
+      .nav-btn:active {
+        transform: translateY(-2px) scale(0.98);
+        box-shadow: 0 4px 16px rgba(79, 195, 247, 0.4), inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        border-color: rgba(79, 195, 247, 0.6);
+      }
+      .nav-btn[disabled] {
+        background: #444;
+        color: #888;
+        cursor: not-allowed;
+        animation: none;
+        transform: none;
+      }
+      .nav-btn[disabled]:hover {
+        transform: none;
+        box-shadow: 0 4px 24px rgba(79, 195, 247, 0.18);
+      }
+      .nav-btn::before {
+        content: "";
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+      .nav-btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+      .nav-btn::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+        transition: left 0.5s;
+      }
+      .nav-btn:focus::after {
+        left: 100%;
+      }
+      
+      @keyframes navEnter {
+        0% {
+          opacity: 0;
+          transform: translateY(50px);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      
+      @keyframes buttonBreathe {
+        0%, 100% {
+          box-shadow: 0 4px 24px rgba(79, 195, 247, 0.18), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          border-color: rgba(79, 195, 247, 0.3);
+          transform: translateY(0) scale(1);
+        }
+        50% {
+          box-shadow: 0 6px 28px rgba(79, 195, 247, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+          border-color: rgba(79, 195, 247, 0.4);
+          transform: translateY(-1px) scale(1.01);
+        }
+      }
+      @keyframes btn-glow {
+        0% {
+          opacity: 0;
+        }
+        50% {
+          opacity: 1;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      .page-indicator {
+        position: absolute;
+        top: 80px;
+        right: 24px;
+        width: 32px;
+        height: 756px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 10;
+      }
+      .dot {
+        display: inline-block;
+        width: 16px;
+        height: 16px;
+        margin: 11px 0;
+        border-radius: 50%;
+        background: #4fc3f7;
+        opacity: 0.4;
+        transition: opacity 0.3s, transform 0.3s;
+      }
+      .dot.active {
+        opacity: 1;
+        transform: scale(1.2);
+        box-shadow: 0 0 0.5vw #4fc3f7;
+      }
+      #ppt-root > section {
+        z-index: 2;
+        margin-top: 16px;
+        margin-bottom: 32px;
+      }
+      .title-page {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #4fc3f7 100%);
+        border-radius: 12px;
+        min-height: 640px;
+        max-width: 1440px;
+        padding: 64px;
+      }
+      .title-content h1 {
+        font-size: 64px;
+        margin-bottom: 32px;
+        text-shadow: 0 4px 16px rgba(0,0,0,0.7);
+      }
+      .subtitle {
+        font-size: 29px;
+        color: #e1f5fe;
+        margin-bottom: 24px;
+        letter-spacing: 2px;
+      }
+      .date {
+        font-size: 19px;
+        color: #b3e5fc;
+        font-style: italic;
+      }
+      .thank-page {
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        background: linear-gradient(135deg, #2a5298 0%, #1e3c72 50%, #0d47a1 100%);
+        border-radius: 12px;
+        min-height: 640px;
+        max-width: 1440px;
+        padding: 64px;
+      }
+      .thank-content h1 {
+        font-size: 56px;
+        margin-bottom: 32px;
+        color: #4fc3f7;
+        text-shadow: 0 4px 16px rgba(79, 195, 247, 0.5);
+      }
+      .thank-subtitle {
+        font-size: 26px;
+        color: #e1f5fe;
+        margin-bottom: 32px;
+        letter-spacing: 2px;
+      }
+      .contact-info {
+        margin: 32px 0;
+      }
+      .contact-info p {
+        font-size: 18px;
+        color: #b3e5fc;
+        margin: 13px 0;
+        letter-spacing: 1px;
+      }
+      .thank-message {
+        font-size: 21px;
+        color: #4fc3f7;
+        font-style: italic;
+        margin-top: 32px;
+      } /* 优化图表样式 */
+      svg rect,
+      svg circle {
+        filter: drop-shadow(0 4px 12px rgba(79, 195, 247, 0.6));
+        stroke: rgba(255,255,255,0.3);
+        stroke-width: 2;
+      }
+      svg text {
+        font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      }
+      svg polygon {
+        filter: drop-shadow(0 2px 6px rgba(255,255,255,0.4));
+        fill: #fff !important;
+      }
+      svg {
+        background: rgba(35, 42, 54, 0.1);
+        border-radius: 12px;
+        padding: 16px;
+        margin: 16px 0;
+        backdrop-filter: blur(5px);
+      } /* 粒子特效canvas覆盖全屏 */
+      
+      /* 计时器样式 */
+      .timer-container {
+        position: absolute;
+        bottom: 15px;
+        left: 15px;
+        right: 15px;
+        z-index: 1001;
+        background: rgba(35, 42, 54, 0.9);
+        border-radius: 8px;
+        padding: 12px 15px;
+        backdrop-filter: blur(10px);
+        border: 1px solid rgba(79, 195, 247, 0.3);
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+        font-family: "Segoe UI", "Microsoft YaHei", Arial, sans-serif;
+        animation: timerEnter 0.8s ease-out;
+      }
+      
+      .timer-display {
+        font-size: 24px;
+        font-weight: 700;
+        color: #4fc3f7;
+        text-align: center;
+        margin-bottom: 10px;
+        font-family: 'Courier New', monospace;
+        text-shadow: 0 2px 4px rgba(79, 195, 247, 0.5);
+        letter-spacing: 2px;
+      }
+      
+      .timer-controls {
+        display: flex;
+        gap: 8px;
+        justify-content: center;
+      }
+      
+      .timer-btn {
+        background: linear-gradient(135deg, #4fc3f7, #2196f3);
+        color: #fff;
+        border: none;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+        position: relative;
+        overflow: hidden;
+      }
+      
+      .timer-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(79, 195, 247, 0.5);
+        background: linear-gradient(135deg, #2196f3, #1976d2);
+      }
+      
+      .timer-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 2px 6px rgba(79, 195, 247, 0.4);
+      }
+      
+      .timer-btn.reset {
+        background: linear-gradient(135deg, #ff7043, #f4511e);
+      }
+      
+      .timer-btn.reset:hover {
+        background: linear-gradient(135deg, #f4511e, #d84315);
+        box-shadow: 0 4px 12px rgba(255, 112, 67, 0.5);
+      }
+      
+      .timer-btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        background: rgba(255, 255, 255, 0.3);
+        border-radius: 50%;
+        transform: translate(-50%, -50%);
+        transition: width 0.3s ease, height 0.3s ease;
+      }
+      
+      .timer-btn:hover::before {
+        width: 100px;
+        height: 100px;
+      }
+      
+      @keyframes timerEnter {
+        0% {
+          opacity: 0;
+          transform: translateY(-20px) scale(0.9);
+        }
+        100% {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+      
+      .timer-running {
+        animation: timerPulse 2s ease-in-out infinite;
+      }
+      
+      @keyframes timerPulse {
+         0%, 100% {
+           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+         }
+         50% {
+           box-shadow: 0 4px 25px rgba(79, 195, 247, 0.4);
+         }
+       }
+       
+       /* 提示稿区域样式 */
+       .script-panel {
+         position: fixed;
+         right: -350px;
+         top: 50%;
+         transform: translateY(-50%);
+         width: 350px;
+         height: 70vh;
+         background: rgba(35, 42, 54, 0.95);
+         border-radius: 12px 0 0 12px;
+         backdrop-filter: blur(15px);
+         border: 1px solid rgba(79, 195, 247, 0.3);
+         border-right: none;
+         box-shadow: -4px 0 20px rgba(0, 0, 0, 0.3);
+         z-index: 999;
+         transition: right 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+         display: flex;
+         flex-direction: column;
+       }
+       
+       .script-panel.open {
+         right: 0;
+       }
+       
+       .script-toggle {
+         position: absolute;
+         left: -40px;
+         top: 50%;
+         transform: translateY(-50%);
+         width: 40px;
+         height: 80px;
+         background: rgba(35, 42, 54, 0.95);
+         border-radius: 8px 0 0 8px;
+         border: 1px solid rgba(79, 195, 247, 0.3);
+         border-right: none;
+         cursor: pointer;
+         display: flex;
+         align-items: center;
+         justify-content: center;
+         color: #4fc3f7;
+         font-size: 18px;
+         transition: all 0.3s ease;
+         backdrop-filter: blur(10px);
+       }
+       
+       .script-toggle:hover {
+         background: rgba(79, 195, 247, 0.2);
+         transform: translateY(-50%) translateX(-2px);
+       }
+       
+       .script-header {
+         padding: 15px 20px;
+         border-bottom: 1px solid rgba(79, 195, 247, 0.3);
+         background: rgba(79, 195, 247, 0.1);
+       }
+       
+       .script-title {
+         color: #4fc3f7;
+         font-size: 16px;
+         font-weight: 600;
+         margin: 0;
+         text-align: center;
+       }
+       
+       .script-content {
+         flex: 1;
+         padding: 20px;
+         overflow-y: auto;
+         font-size: 14px;
+         line-height: 1.6;
+         color: #e0e0e0;
+       }
+       
+       .script-content::-webkit-scrollbar {
+         width: 6px;
+       }
+       
+       .script-content::-webkit-scrollbar-track {
+         background: rgba(255, 255, 255, 0.1);
+         border-radius: 3px;
+       }
+       
+       .script-content::-webkit-scrollbar-thumb {
+         background: rgba(79, 195, 247, 0.5);
+         border-radius: 3px;
+       }
+       
+       .script-content::-webkit-scrollbar-thumb:hover {
+         background: rgba(79, 195, 247, 0.7);
+       }
+       
+       .script-section {
+         margin-bottom: 20px;
+         padding: 15px;
+         background: rgba(79, 195, 247, 0.05);
+         border-radius: 8px;
+         border-left: 3px solid #4fc3f7;
+       }
+       
+       .script-section h4 {
+         color: #4fc3f7;
+         margin: 0 0 10px 0;
+         font-size: 14px;
+         font-weight: 600;
+       }
+       
+       .script-section p {
+         margin: 8px 0;
+         text-indent: 2em;
+       }
+       
+       .script-highlight {
+         background: rgba(255, 193, 7, 0.2);
+         padding: 2px 4px;
+         border-radius: 3px;
+         color: #ffc107;
+       }
+       
+       /* 提示稿翻页按钮样式 */
+       .script-nav-btns {
+         padding: 15px 20px;
+         border-top: 1px solid rgba(79, 195, 247, 0.3);
+         display: flex;
+         gap: 10px;
+         justify-content: center;
+         background: rgba(79, 195, 247, 0.05);
+       }
+       
+       .script-nav-btn {
+         background: linear-gradient(135deg, #4fc3f7, #2196f3);
+         color: #fff;
+         border: none;
+         padding: 8px 16px;
+         border-radius: 6px;
+         cursor: pointer;
+         font-size: 12px;
+         font-weight: 600;
+         transition: all 0.3s ease;
+         box-shadow: 0 2px 8px rgba(79, 195, 247, 0.3);
+         flex: 1;
+         max-width: 80px;
+       }
+       
+       .script-nav-btn:hover {
+         transform: translateY(-1px);
+         box-shadow: 0 4px 12px rgba(79, 195, 247, 0.5);
+         background: linear-gradient(135deg, #2196f3, #1976d2);
+       }
+       
+       .script-nav-btn:active {
+         transform: translateY(0);
+         box-shadow: 0 2px 6px rgba(79, 195, 247, 0.4);
+       }
+       
+       .script-nav-btn[disabled] {
+         background: #666;
+         color: #999;
+         cursor: not-allowed;
+         transform: none;
+         box-shadow: none;
+       }
+       
+       .script-nav-btn[disabled]:hover {
+         transform: none;
+         box-shadow: none;
+         background: #666;
+       }
+    </style>
+  </head>
+  <body>
+    <canvas id="particle-bg"></canvas>
+     
+     <!-- 提示稿面板 -->
+     <div class="script-panel" id="script-panel">
+       <div class="script-toggle" onclick="toggleScript()">
+         📝
+       </div>
+       <div class="script-header">
+         <h3 class="script-title">演讲提示稿</h3>
+       </div>
+       <div class="script-content" id="script-content">
+         <div class="script-section">
+           <h4>开场白</h4>
+           <p>各位领导，各位战友，我是来自成都市公安局武侯区分局的周凡。</p>
+           <p>今天，我同大家分享的项目是<span class="script-highlight">法医学死亡时间推导APP</span>。</p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-1" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-1" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+         
+         <div class="script-section">
+           <h4>项目背景</h4>
+           <p>首先，我谈一下我们为什么做这个项目：</p>
+           <p>去年，一个兄弟单位向我们介绍，他们侦破了一起故意杀人的隐案。在这个过程中，对死亡时间的精准推导，起了很大的作用。</p>
+           <p>长久以来，法医工作中推导死亡时间是一个<span class="script-highlight">痛点、难点</span>问题：</p>
+           <p>• 尸体所处的环境，对尸温和尸体现象影响较大</p>
+           <p>• 尸温计算所使用的完整公式，是一个多参数的非线性函数，难以进行现场计算。通常使用的是误差较大的简化版公式</p>
+           <p>• 一些尸体现象难以直观量化，需要常年的工作经验</p>
+           <p>• 现场环境数据的查询、测量和记录很不方便</p>
+           <p>这就启发了我们，是不是可以借助<span class="script-highlight">大模型的代码生成能力</span>，搞一个计算器，来加速和简化我们的现场工作。</p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-2" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-2" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+         
+         <div class="script-section">
+           <h4>安全挑战与解决方案</h4>
+           <p>然而，项目刚开始，我们就遇到了一个问题：<span class="script-highlight">安全</span></p>
+           <p>• 尸检数据存在很多敏感信息</p>
+           <p>• 而自己部署的模型能力不足</p>
+           <p>那怎么突破这些瓶颈呢？</p>
+           <p>我们规划了<span class="script-highlight">"人机协同-内外联动"</span>的工作路径：</p>
+           <p>首先我们人工将历史案例和经典教科书中的理论摘录出来，形成基础数据，再经过本地的模型进行整理和脱密，形成了精炼的参考知识集。</p>
+           <p>再调用国内公网的商用模型进行整合提炼，生成我们的参考数据集和项目文档。</p>
+           <p>最后，我们改造了一个开源的代码生成引擎，用来调用外网的高性能模型，最终生成了符合我们业务场景需求的APP。</p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-3" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-3" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+         
+         <div class="script-section">
+           <h4>核心算法</h4>
+           <p>我们的核心算法采用了<span class="script-highlight">多指标分级融合方案</span>：</p>
+           <p>• 根据尸体的情况，处在哪一种指标较准确的阶段，就优先使用哪一种指标</p>
+           <p>• 再对其它指标以可靠性动态排序</p>
+           <p>• 当指标之间出现明显冲突和误差时，会进行警示性标注，提醒我们注意发现现场的异常情况</p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-4" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-4" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+         
+         <div class="script-section">
+           <h4>工具设计</h4>
+           <p>整个工具，分为<span class="script-highlight">3个页面</span>，以向导的形式，指引我们记录环境参数和尸体现象：</p>
+           <p>• 环境参数可以手工填写，也可以通过高德地图API实时获取</p>
+           <p>• 尸体特征，我们使用了六种尸体现象，并对尸体现象的描述进行了标准化分级</p>
+           <p>• 填写完这些信息后，就能自动生成一个报告，我们也能将这个报告导出，发送给后方的战友</p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-5" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-5" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+         
+         <div class="script-section">
+           <h4>实战应用案例</h4>
+           <p>今年5月，我们辖区也接报了一起类似的案件，我们通过APP快速推导出死亡时间的区间，发现与报案人所述情况<span class="script-highlight">明显不符</span>。</p>
+           <p>因为这个重大异常，我们立刻扣押了报案人的手机，经过电子物证的提取和检验，发现了指向案件的线索，并以此为突破口，拿下了报案人的口供。</p>
+           <p>从而发现这起非正常死亡事件其实是一起<span class="script-highlight">故意伤害致死的隐案</span>。</p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-6" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-6" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+         
+         <div class="script-section">
+           <h4>总结与展望</h4>
+           <p>最后，我做个总结吧，通过这个项目，我们基于以往工作经验和参考文献，成功地构建了一个有助于提升工作质效的小工具。</p>
+           <p>更重要的是：在探索和实践中摸索出了一条<span class="script-highlight">AI落地实战警务场景的新路径</span>。</p>
+           <p>在这个过程中我们基于"人机协同—内外联动"的工作模式，成功解决了大模型警务应用中关于安全性和可靠性的问题，构建了<span class="script-highlight">"数据采集—AI转化—场景赋能"</span>的AI落地应用三步曲。</p>
+           <p>接下来，我们正在考虑：</p>
+           <p>一是将尸体电阻、电容变化等参数纳入采集范围，为我们的APP未来增加一些新的推断因子。</p>
+           <p>二是将这个工作模式推广到足迹分析、血迹形态分析等领域。</p>
+           <p>以AI赋能构建<span class="script-highlight">"全链条、智能化、全场景"</span>的现代化刑事技术应用矩阵。</p>
+           <p><strong>我的分享完毕，谢谢！</strong></p>
+           <!-- 翻页按钮 -->
+           <div class="script-nav-btns">
+             <button class="script-nav-btn" id="script-prev-btn-7" onclick="prevPage()">上一页</button>
+             <button class="script-nav-btn" id="script-next-btn-7" onclick="nextPage()">下一页</button>
+           </div>
+         </div>
+          
+          <!-- 计时器组件 -->
+          <div class="timer-container" id="timer-container">
+            <div class="timer-display" id="timer-display">00:00:00</div>
+            <div class="timer-controls">
+              <button class="timer-btn" id="start-btn" onclick="toggleTimer()">开始</button>
+              <button class="timer-btn reset" id="reset-btn" onclick="resetTimer()">复位</button>
+            </div>
+          </div>
+        </div>
+      </div>
+     
+     <div id="ppt-root">
+      <section class="active title-page">
+        <div class="title-content">
+          <h1>法医学死亡时间推导APP<br />项目分享</h1>
+          <div class="subtitle">
+            成都市公安局武侯区分局 周凡
+          </div>
+          <div class="date">
+            2025年6月
+          </div>
+        </div>
+      </section>
+      <section>
+        <h2>项目背景与动因</h2>
+        <ul>
+          <li>死亡时间推导是法医工作中的难点与痛点</li>
+          <li>环境、尸温、尸体现象等多因素影响，传统方法误差大</li>
+          <li>现场数据采集、记录繁琐，经验依赖性强</li>
+          <li>启发：借助AI与大模型能力，开发智能推导工具</li>
+        </ul>
+        <svg width="800" height="400"  viewBox="0 0 800 450" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+          <defs>
+            <linearGradient id="problemGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff7043;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#f4511e;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="solutionGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#2196f3;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="resultGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge> 
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/> 
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- 问题识别层 -->
+          <g class="problem-layer">
+            <text x="400" y="25" font-size="1.4em" fill="#ff7043" text-anchor="middle" font-weight="bold">问题识别与分析</text>
+            
+            <!-- 问题节点 -->
+            <rect x="50" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="120" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">环境影响复杂</text>
+            <text x="120" y="90" font-size="0.8em" fill="white" text-anchor="middle">多因素干扰</text>
+            
+            <rect x="220" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="290" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">计算误差大</text>
+            <text x="290" y="90" font-size="0.8em" fill="white" text-anchor="middle">简化公式不准</text>
+            
+            <rect x="390" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="460" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">经验依赖强</text>
+            <text x="460" y="90" font-size="0.8em" fill="white" text-anchor="middle">量化困难</text>
+            
+            <rect x="560" y="50" width="140" height="60" rx="10" fill="url(#problemGrad)" filter="url(#glow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </rect>
+            <text x="630" y="75" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">数据采集难</text>
+            <text x="630" y="90" font-size="0.8em" fill="white" text-anchor="middle">记录繁琐</text>
+          </g>
+          
+          <!-- 连接线 -->
+          <g class="connection-lines">
+            <path d="M 120 120 Q 200 140 280 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            <path d="M 290 120 Q 350 140 400 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </path>
+            <path d="M 460 120 Q 500 140 520 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            <path d="M 630 120 Q 580 140 520 160" stroke="#4fc3f7" stroke-width="3" fill="none" opacity="0.7">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </path>
+          </g>
+          
+          <!-- 解决方案层 -->
+          <g class="solution-layer">
+            <text x="400" y="185" font-size="1.4em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">AI赋能解决方案</text>
+            
+            <!-- 核心解决方案 -->
+            <ellipse cx="400" cy="220" rx="180" ry="40" fill="url(#solutionGrad)" filter="url(#glow)">
+              <animateTransform attributeName="transform" type="scale" values="1;1.05;1" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            <text x="400" y="220" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">人机协同 + 内外联动</text>
+            <text x="400" y="235" font-size="0.9em" fill="white" text-anchor="middle">AI大模型 + 多源数据融合</text>
+            
+            <!-- 技术路径 -->
+            <rect x="100" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="160" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">本地脱敏</text>
+            <text x="160" y="315" font-size="0.7em" fill="white" text-anchor="middle">数据安全</text>
+            
+            <rect x="250" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="310" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">知识提炼</text>
+            <text x="310" y="315" font-size="0.7em" fill="white" text-anchor="middle">智能整合</text>
+            
+            <rect x="400" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="460" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">模型调用</text>
+            <text x="460" y="315" font-size="0.7em" fill="white" text-anchor="middle">高性能计算</text>
+            
+            <rect x="550" y="280" width="120" height="50" rx="8" fill="#2196f3" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </rect>
+            <text x="610" y="300" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">APP生成</text>
+            <text x="610" y="315" font-size="0.7em" fill="white" text-anchor="middle">场景定制</text>
+          </g>
+          
+          <!-- 成果展示 -->
+          <g class="result-layer">
+            <text x="400" y="365" font-size="1.4em" fill="#81c784" text-anchor="middle" font-weight="bold">质效提升成果</text>
+            
+            <circle cx="200" cy="385" r="25" fill="url(#resultGrad)" filter="url(#glow)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="200" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">精准推导</text>
+            
+            <circle cx="400" cy="385" r="25" fill="url(#resultGrad)" filter="url(#glow)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+            </circle>
+            <text x="400" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">智能辅助</text>
+            
+            <circle cx="600" cy="385" r="25" fill="url(#resultGrad)" filter="url(#glow)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+            </circle>
+            <text x="600" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">实战应用</text>
+          </g>
+          
+          <!-- 流程箭头 -->
+          <g class="flow-arrows">
+            <polygon points="390,130 410,130 400,145" fill="#4fc3f7" opacity="0.8">
+              <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="1s" repeatCount="indefinite"/>
+            </polygon>
+            <polygon points="390,260 410,260 400,275" fill="#81c784" opacity="0.8">
+              <animateTransform attributeName="transform" type="translate" values="0,0;0,-5;0,0" dur="1s" repeatCount="indefinite" begin="0.5s"/>
+            </polygon>
+          </g>
+        </svg>
+      </section>
+      <section>
+        <h2>安全与创新路径</h2>
+        <ul>
+          <li>敏感数据安全：本地模型脱敏、整理</li>
+          <li>“人机协同-内外联动”工作模式</li>
+          <li>多源数据融合，生成精炼知识集</li>
+          <li>开源引擎+高性能模型，定制业务APP</li>
+        </ul>
+        <svg width="900" height="300" viewBox="0 0 900 450" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+          <defs>
+            <linearGradient id="dataGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#29b6f6;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="aiGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="appGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffca28;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="securityGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff8a65;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff7043;stop-opacity:1" />
+            </linearGradient>
+            <filter id="shadowEffect">
+              <feDropShadow dx="2" dy="2" stdDeviation="3" flood-opacity="0.3"/>
+            </filter>
+            <filter id="glowEffect">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- 系统架构标题 -->
+          <text x="450" y="25" font-size="1.6em" fill="#2c3e50" text-anchor="middle" font-weight="bold">AI赋能系统架构</text>
+          
+          <!-- 数据采集层 -->
+          <g class="data-collection-layer">
+            <text x="150" y="65" font-size="1.2em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">数据采集层</text>
+            
+            <!-- 数据源 -->
+            <rect x="50" y="80" width="80" height="50" rx="8" fill="url(#dataGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="90" y="100" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">现场数据</text>
+            <text x="90" y="115" font-size="0.7em" fill="white" text-anchor="middle">环境参数</text>
+            
+            <rect x="150" y="80" width="80" height="50" rx="8" fill="url(#dataGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="190" y="100" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">尸体特征</text>
+            <text x="190" y="115" font-size="0.7em" fill="white" text-anchor="middle">生物指标</text>
+            
+            <rect x="250" y="80" width="80" height="50" rx="8" fill="url(#dataGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="290" y="100" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">历史案例</text>
+            <text x="290" y="115" font-size="0.7em" fill="white" text-anchor="middle">经验数据</text>
+          </g>
+          
+          <!-- 安全处理层 -->
+          <g class="security-layer">
+            <text x="150" y="175" font-size="1.2em" fill="#ff8a65" text-anchor="middle" font-weight="bold">安全处理层</text>
+            
+            <ellipse cx="150" cy="200" rx="120" ry="30" fill="url(#securityGrad)" filter="url(#glowEffect)">
+              <animateTransform attributeName="transform" type="scale" values="1;1.03;1" dur="3s" repeatCount="indefinite"/>
+            </ellipse>
+            <text x="150" y="200" font-size="0.9em" fill="white" text-anchor="middle" font-weight="bold">本地脱敏处理</text>
+            <text x="150" y="215" font-size="0.8em" fill="white" text-anchor="middle">数据安全 + 隐私保护</text>
+          </g>
+          
+          <!-- AI转化层 -->
+          <g class="ai-transformation-layer">
+            <text x="450" y="175" font-size="1.2em" fill="#81c784" text-anchor="middle" font-weight="bold">AI智能转化层</text>
+            
+            <!-- 核心AI模块 -->
+            <rect x="350" y="190" width="200" height="80" rx="15" fill="url(#aiGrad)" filter="url(#glowEffect)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2.5s" repeatCount="indefinite"/>
+            </rect>
+            <text x="450" y="215" font-size="1em" fill="white" text-anchor="middle" font-weight="bold">人机协同引擎</text>
+            <text x="450" y="235" font-size="0.8em" fill="white" text-anchor="middle">大模型 + 专家知识</text>
+            <text x="450" y="250" font-size="0.8em" fill="white" text-anchor="middle">多源数据融合</text>
+            
+            <!-- AI子模块 -->
+            <circle cx="380" cy="300" r="25" fill="#66bb6a" filter="url(#shadowEffect)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="380" y="305" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">知识提炼</text>
+            
+            <circle cx="450" cy="300" r="25" fill="#66bb6a" filter="url(#shadowEffect)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+            </circle>
+            <text x="450" y="305" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">智能推理</text>
+            
+            <circle cx="520" cy="300" r="25" fill="#66bb6a" filter="url(#shadowEffect)">
+              <animate attributeName="r" values="20;30;20" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+            </circle>
+            <text x="520" y="305" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">结果优化</text>
+          </g>
+          
+          <!-- 应用生成层 -->
+          <g class="application-layer">
+            <text x="750" y="175" font-size="1.2em" fill="#ffd54f" text-anchor="middle" font-weight="bold">应用生成层</text>
+            
+            <!-- 应用模块 -->
+            <rect x="650" y="190" width="90" height="60" rx="10" fill="url(#appGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="695" y="215" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">移动APP</text>
+            <text x="695" y="230" font-size="0.7em" fill="#333" text-anchor="middle">现场应用</text>
+            
+            <rect x="760" y="190" width="90" height="60" rx="10" fill="url(#appGrad)" filter="url(#shadowEffect)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="805" y="215" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">Web平台</text>
+            <text x="805" y="230" font-size="0.7em" fill="#333" text-anchor="middle">后台分析</text>
+            
+            <!-- 功能特性 -->
+            <rect x="680" y="270" width="120" height="40" rx="8" fill="#ffca28" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="740" y="285" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">场景定制化</text>
+            <text x="740" y="300" font-size="0.7em" fill="#333" text-anchor="middle">智能推导工具</text>
+          </g>
+          
+          <!-- 数据流箭头 -->
+          <g class="data-flow">
+            <!-- 采集到安全处理 -->
+            <path d="M 190 140 Q 170 160 150 180" stroke="#4fc3f7" stroke-width="3" fill="none" marker-end="url(#arrowhead)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- 安全处理到AI转化 -->
+            <path d="M 270 200 Q 310 200 350 220" stroke="#ff8a65" stroke-width="3" fill="none" marker-end="url(#arrowhead)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            
+            <!-- AI转化到应用生成 -->
+            <path d="M 550 220 Q 600 220 650 220" stroke="#81c784" stroke-width="3" fill="none" marker-end="url(#arrowhead)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </path>
+          </g>
+          
+          <!-- 反馈回路 -->
+          <g class="feedback-loop">
+            <path d="M 650 280 Q 450 350 270 280 Q 150 350 90 280" stroke="#9c27b0" stroke-width="2" fill="none" stroke-dasharray="5,5" opacity="0.7">
+              <animate attributeName="stroke-dasharray" values="5,5;10,10;5,5" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <text x="450" y="370" font-size="0.8em" fill="#9c27b0" text-anchor="middle" font-style="italic">持续学习与优化反馈</text>
+          </g>
+          
+          <!-- 内外联动标识 -->
+          <g class="collaboration-indicator">
+            <rect x="350" y="400" width="200" height="30" rx="15" fill="#e1f5fe" stroke="#4fc3f7" stroke-width="2">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="450" y="420" font-size="0.9em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">内外联动协作机制</text>
+          </g>
+          
+          <!-- 箭头标记定义 -->
+          <defs>
+            <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+        </svg>
+      </section>
+      <section>
+        <h2>核心算法方案</h2>
+        <ul>
+          <li>采用多指标分级融合方案</li>
+          <li>根据尸体情况，处在哪一种指标较准确的阶段</li>
+          <li>优先使用准确度高的指标</li>
+          <li>对其它指标以可靠性动态排序</li>
+          <li>当指标之间出现明显冲突和误差时，进行警示性标注</li>
+          <li>提醒发现现场的异常情况</li>
+        </ul>
+
+        <svg width="500" height="100" viewBox="0 0 500 100" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+          <rect x="20" y="20" width="100" height="60" rx="10" fill="#4fc3f7" />
+          <text
+            x="70"
+            y="55"
+            font-size="0.9em"
+            fill="#181c24"
+            text-anchor="middle"
+          >
+            指标采集
+          </text>
+          <polygon points="120,50 140,50 140,55 120,55" fill="#fff" />
+          <rect x="140" y="20" width="100" height="60" rx="10" fill="#81c784" />
+          <text
+            x="190"
+            y="55"
+            font-size="0.9em"
+            fill="#181c24"
+            text-anchor="middle"
+          >
+            分级融合
+          </text>
+          <polygon points="240,50 260,50 260,55 240,55" fill="#fff" />
+          <rect x="260" y="20" width="100" height="60" rx="10" fill="#ffd54f" />
+          <text
+            x="310"
+            y="55"
+            font-size="0.9em"
+            fill="#181c24"
+            text-anchor="middle"
+          >
+            动态排序
+          </text>
+          <polygon points="360,50 380,50 380,55 360,55" fill="#fff" />
+          <rect x="380" y="20" width="100" height="60" rx="10" fill="#ff8a65" />
+          <text
+            x="430"
+            y="55"
+            font-size="0.9em"
+            fill="#181c24"
+            text-anchor="middle"
+          >
+            异常警示
+          </text>
+        </svg>
+      </section>
+      <section>
+        <h2>工具功能设计</h2>
+        <ul>
+          <li>整个工具分为3个页面，以向导的形式指引操作</li>
+          <li>环境参数可以手工填写，也可以通过高德地图API实时获取</li>
+          <li>尸体特征使用了六种尸体现象</li>
+          <li>对尸体现象的描述进行了标准化分级</li>
+          <li>填写完信息后，自动生成报告</li>
+          <li>支持将报告导出，发送给后方的战友</li>
+        </ul>
+        <svg width="900" height="500"  viewBox="0 0 900 550" preserveAspectRatio="xMidYMid meet"style="margin: 20px auto; display: block;">
+          <defs>
+            <linearGradient id="uiGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#29b6f6;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="uiGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#66bb6a;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="uiGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffca28;stop-opacity:1" />
+            </linearGradient>
+            <filter id="uiShadow">
+              <feDropShadow dx="3" dy="3" stdDeviation="3" flood-opacity="0.3"/>
+            </filter>
+            <filter id="uiGlow">
+              <feGaussianBlur stdDeviation="2" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
+          
+          <!-- UI原型展示标题 -->
+          <text x="450" y="25" font-size="1.5em" fill="#2c3e50" text-anchor="middle" font-weight="bold">工具UI原型设计</text>
+          
+          <!-- 第一页：环境参数输入界面 -->
+          <g class="page1-ui">
+            <text x="150" y="65" font-size="1.2em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">第一页：环境参数</text>
+            
+            <!-- 手机界面框架 -->
+            <rect x="50" y="80" width="200" height="320" rx="20" fill="#f5f5f5" stroke="#ddd" stroke-width="2" filter="url(#uiShadow)">
+              <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            
+            <!-- 状态栏 -->
+            <rect x="60" y="90" width="180" height="20" rx="10" fill="url(#uiGrad1)" opacity="0.8"/>
+            <text x="150" y="103" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">死亡时间推导工具</text>
+            
+            <!-- 输入表单区域 -->
+            <rect x="70" y="120" width="160" height="30" rx="5" fill="white" stroke="#4fc3f7" stroke-width="1"/>
+            <text x="80" y="138" font-size="0.7em" fill="#666" font-weight="bold">环境温度：</text>
+            <text x="200" y="138" font-size="0.7em" fill="#4fc3f7" text-anchor="end">25°C</text>
+            
+            <rect x="70" y="160" width="160" height="30" rx="5" fill="white" stroke="#4fc3f7" stroke-width="1"/>
+            <text x="80" y="178" font-size="0.7em" fill="#666" font-weight="bold">相对湿度：</text>
+            <text x="200" y="178" font-size="0.7em" fill="#4fc3f7" text-anchor="end">65%</text>
+            
+            <rect x="70" y="200" width="160" height="30" rx="5" fill="white" stroke="#4fc3f7" stroke-width="1"/>
+            <text x="80" y="218" font-size="0.7em" fill="#666" font-weight="bold">风速等级：</text>
+            <text x="200" y="218" font-size="0.7em" fill="#4fc3f7" text-anchor="end">2级</text>
+            
+            <!-- API获取按钮 -->
+            <rect x="80" y="250" width="140" height="35" rx="8" fill="url(#uiGrad1)" filter="url(#uiGlow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="150" y="270" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">高德API获取</text>
+            
+            <!-- 下一步按钮 -->
+            <rect x="80" y="320" width="140" height="35" rx="8" fill="#4fc3f7" opacity="0.9"/>
+            <text x="150" y="340" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">下一步 →</text>
+          </g>
+          
+          <!-- 第二页：尸体现象输入界面 -->
+          <g class="page2-ui">
+            <text x="450" y="65" font-size="1.2em" fill="#81c784" text-anchor="middle" font-weight="bold">第二页：尸体现象</text>
+            
+            <!-- 手机界面框架 -->
+            <rect x="350" y="80" width="200" height="320" rx="20" fill="#f5f5f5" stroke="#ddd" stroke-width="2" filter="url(#uiShadow)">
+              <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            
+            <!-- 状态栏 -->
+            <rect x="360" y="90" width="180" height="20" rx="10" fill="url(#uiGrad2)" opacity="0.8"/>
+            <text x="450" y="103" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">尸体现象评估</text>
+            
+            <!-- 现象选择区域 -->
+            <circle cx="380" cy="140" r="12" fill="#81c784" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="400" y="145" font-size="0.7em" fill="#333" font-weight="bold">尸斑：明显</text>
+            
+            <circle cx="380" cy="170" r="12" fill="#81c784" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+            </circle>
+            <text x="400" y="175" font-size="0.7em" fill="#333" font-weight="bold">尸僵：部分</text>
+            
+            <circle cx="380" cy="200" r="12" fill="#81c784" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+            </circle>
+            <text x="400" y="205" font-size="0.7em" fill="#333" font-weight="bold">腐败：轻微</text>
+            
+            <!-- 标准化分级滑块 -->
+            <rect x="370" y="240" width="160" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="370" y="240" width="80" height="8" rx="4" fill="#81c784">
+              <animate attributeName="width" values="60;100;60" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <circle cx="450" cy="244" r="6" fill="#66bb6a">
+              <animate attributeName="cx" values="430;470;430" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="450" y="265" font-size="0.7em" fill="#666" text-anchor="middle">可信度：75%</text>
+            
+            <!-- 下一步按钮 -->
+            <rect x="380" y="320" width="140" height="35" rx="8" fill="#81c784" opacity="0.9"/>
+            <text x="450" y="340" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">生成报告 →</text>
+          </g>
+          
+          <!-- 第三页：报告生成界面 -->
+          <g class="page3-ui">
+            <text x="750" y="65" font-size="1.2em" fill="#ffd54f" text-anchor="middle" font-weight="bold">第三页：报告生成</text>
+            
+            <!-- 手机界面框架 -->
+            <rect x="650" y="80" width="200" height="320" rx="20" fill="#f5f5f5" stroke="#ddd" stroke-width="2" filter="url(#uiShadow)">
+              <animate attributeName="opacity" values="0.9;1;0.9" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            
+            <!-- 状态栏 -->
+            <rect x="660" y="90" width="180" height="20" rx="10" fill="url(#uiGrad3)" opacity="0.8"/>
+            <text x="750" y="103" font-size="0.7em" fill="#333" text-anchor="middle" font-weight="bold">分析报告</text>
+            
+            <!-- 报告内容区域 -->
+            <rect x="670" y="120" width="160" height="150" rx="8" fill="white" stroke="#ffd54f" stroke-width="1"/>
+            
+            <!-- 报告标题 -->
+            <text x="750" y="140" font-size="0.8em" fill="#333" text-anchor="middle" font-weight="bold">死亡时间推导报告</text>
+            
+            <!-- 结果显示 -->
+            <rect x="680" y="150" width="140" height="25" rx="5" fill="#fff3e0" stroke="#ffd54f" stroke-width="1"/>
+            <text x="750" y="165" font-size="0.7em" fill="#f57c00" text-anchor="middle" font-weight="bold">推导时间：18-24小时前</text>
+            
+            <!-- 可信度指示器 -->
+            <rect x="680" y="185" width="140" height="15" rx="7" fill="#e0e0e0"/>
+            <rect x="680" y="185" width="105" height="15" rx="7" fill="#4caf50">
+              <animate attributeName="width" values="90;120;90" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="750" y="210" font-size="0.6em" fill="#666" text-anchor="middle">可信度：75%</text>
+            
+            <!-- 关键指标 -->
+            <text x="680" y="230" font-size="0.6em" fill="#666" font-weight="bold">关键指标：</text>
+            <text x="680" y="245" font-size="0.6em" fill="#666">• 尸温下降曲线</text>
+            <text x="680" y="255" font-size="0.6em" fill="#666">• 尸斑形成程度</text>
+            <text x="680" y="265" font-size="0.6em" fill="#666">• 环境因素修正</text>
+            
+            <!-- 导出按钮 -->
+            <rect x="680" y="290" width="60" height="30" rx="6" fill="#4fc3f7" opacity="0.9"/>
+            <text x="710" y="308" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">导出</text>
+            
+            <rect x="750" y="290" width="60" height="30" rx="6" fill="#81c784" opacity="0.9"/>
+            <text x="780" y="308" font-size="0.7em" fill="white" text-anchor="middle" font-weight="bold">发送</text>
+          </g>
+          
+          <!-- 交互流程箭头 -->
+          <g class="ui-flow">
+            <!-- 第一页到第二页 -->
+            <path d="M 250 240 Q 300 240 350 240" stroke="#4fc3f7" stroke-width="3" fill="none" marker-end="url(#uiArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- 第二页到第三页 -->
+            <path d="M 550 240 Q 600 240 650 240" stroke="#81c784" stroke-width="3" fill="none" marker-end="url(#uiArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </path>
+          </g>
+          
+          <!-- 用户体验特色标注 -->
+          <g class="ux-features">
+            <ellipse cx="150" cy="450" rx="80" ry="20" fill="#e3f2fd" stroke="#4fc3f7" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite"/>
+            </ellipse>
+            <text x="150" y="455" font-size="0.7em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">向导式操作</text>
+            
+            <ellipse cx="450" cy="450" rx="80" ry="20" fill="#e8f5e8" stroke="#81c784" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="0.7s"/>
+            </ellipse>
+            <text x="450" y="455" font-size="0.7em" fill="#81c784" text-anchor="middle" font-weight="bold">标准化分级</text>
+            
+            <ellipse cx="750" cy="450" rx="80" ry="20" fill="#fff8e1" stroke="#ffd54f" stroke-width="1" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" repeatCount="indefinite" begin="1.4s"/>
+            </ellipse>
+            <text x="750" y="455" font-size="0.7em" fill="#f57c00" text-anchor="middle" font-weight="bold">智能报告</text>
+          </g>
+          
+          <!-- 箭头标记定义 -->
+          <defs>
+            <marker id="uiArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+        </svg>
+      </section>
+      <section>
+        <h2>实战案例</h2>
+        <ul>
+          <li>通过APP快速推导死亡时间区间，发现与报案人陈述不符</li>
+          <li>及时锁定异常，扣押手机，电子物证提取关键线索</li>
+          <li>突破口供，侦破隐案</li>
+        </ul>
+        <svg width="1000" height="600"  viewBox="0 0 1000 620" preserveAspectRatio="xMidYMid meet" style="margin: 20px auto; display: block;">
+          <!-- 定义渐变和滤镜 -->
+          <defs>
+            <!-- 时间线渐变 -->
+            <linearGradient id="timelineGrad1" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#29b6f6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#03a9f4;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad2" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#66bb6a;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#4caf50;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad3" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffca28;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffc107;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad4" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ff8a65;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ff7043;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff5722;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="timelineGrad5" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style="stop-color:#ba68c8;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ab47bc;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+            </linearGradient>
+            
+            <!-- 阴影滤镜 -->
+            <filter id="timelineShadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="3" dy="3" stdDeviation="3" flood-color="rgba(0,0,0,0.3)"/>
+            </filter>
+            
+            <!-- 发光滤镜 -->
+            <filter id="timelineGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+              <feMerge> 
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/> 
+              </feMerge>
+            </filter>
+            
+            <!-- 箭头标记 -->
+            <marker id="timelineArrow" markerWidth="12" markerHeight="8" refX="10" refY="4" orient="auto">
+              <polygon points="0 0, 12 4, 0 8" fill="#666" />
+            </marker>
+          </defs>
+          
+          <!-- 标题 -->
+          <text x="500" y="40" font-size="1.8em" fill="#333" text-anchor="middle" font-weight="bold">实战案例应用时间线</text>
+          <text x="500" y="65" font-size="1.1em" fill="#666" text-anchor="middle">从现场勘查到案件突破的完整流程</text>
+          
+          <!-- 主时间线 -->
+          <line x1="100" y1="300" x2="900" y2="300" stroke="#ddd" stroke-width="4"/>
+          
+          <!-- 第一阶段：现场勘查 -->
+          <g class="timeline-stage1">
+            <!-- 时间节点 -->
+            <circle cx="150" cy="300" r="15" fill="url(#timelineGrad1)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite"/>
+            </circle>
+            <text x="150" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+0小时</text>
+            
+            <!-- 阶段内容框 -->
+            <rect x="80" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad1)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="150" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">现场勘查</text>
+            
+            <!-- 详细步骤 -->
+            <circle cx="100" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="110" y="199" font-size="0.7em" fill="white">发现尸体</text>
+            
+            <circle cx="100" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.3s"/>
+            </circle>
+            <text x="110" y="219" font-size="0.7em" fill="white">环境测量</text>
+            
+            <circle cx="100" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.6s"/>
+            </circle>
+            <text x="110" y="239" font-size="0.7em" fill="white">现象记录</text>
+            
+            <circle cx="100" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.9s"/>
+            </circle>
+            <text x="110" y="259" font-size="0.7em" fill="white">初步评估</text>
+          </g>
+          
+          <!-- 第二阶段：APP推导 -->
+          <g class="timeline-stage2">
+            <!-- 时间节点 -->
+            <circle cx="300" cy="300" r="15" fill="url(#timelineGrad2)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <text x="300" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+0.5小时</text>
+            
+            <!-- 阶段内容框 -->
+            <rect x="230" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad2)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="300" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">APP推导</text>
+            
+            <!-- 详细步骤 -->
+            <circle cx="250" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <text x="260" y="199" font-size="0.7em" fill="white">数据输入</text>
+            
+            <circle cx="250" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="0.8s"/>
+            </circle>
+            <text x="260" y="219" font-size="0.7em" fill="white">算法分析</text>
+            
+            <circle cx="250" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.1s"/>
+            </circle>
+            <text x="260" y="239" font-size="0.7em" fill="white">时间推导</text>
+            
+            <circle cx="250" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.4s"/>
+            </circle>
+            <text x="260" y="259" font-size="0.7em" fill="white">结果输出</text>
+          </g>
+          
+          <!-- 第三阶段：异常发现 -->
+          <g class="timeline-stage3">
+            <!-- 时间节点 -->
+            <circle cx="500" cy="300" r="15" fill="url(#timelineGrad3)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="500" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+1小时</text>
+            
+            <!-- 阶段内容框 -->
+            <rect x="430" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad3)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="500" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">异常发现</text>
+            
+            <!-- 详细步骤 -->
+            <circle cx="450" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="460" y="199" font-size="0.7em" fill="white">结果对比</text>
+            
+            <circle cx="450" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.3s"/>
+            </circle>
+            <text x="460" y="219" font-size="0.7em" fill="white">发现矛盾</text>
+            
+            <circle cx="450" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.6s"/>
+            </circle>
+            <text x="460" y="239" font-size="0.7em" fill="white">锁定疑点</text>
+            
+            <circle cx="450" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.9s"/>
+            </circle>
+            <text x="460" y="259" font-size="0.7em" fill="white">扣押手机</text>
+          </g>
+          
+          <!-- 第四阶段：电子取证 -->
+          <g class="timeline-stage4">
+            <!-- 时间节点 -->
+            <circle cx="700" cy="300" r="15" fill="url(#timelineGrad4)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            <text x="700" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+6小时</text>
+            
+            <!-- 阶段内容框 -->
+            <rect x="630" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad4)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </rect>
+            <text x="700" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">电子取证</text>
+            
+            <!-- 详细步骤 -->
+            <circle cx="650" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            <text x="660" y="199" font-size="0.7em" fill="white">数据提取</text>
+            
+            <circle cx="650" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="1.8s"/>
+            </circle>
+            <text x="660" y="219" font-size="0.7em" fill="white">通话记录</text>
+            
+            <circle cx="650" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.1s"/>
+            </circle>
+            <text x="660" y="239" font-size="0.7em" fill="white">位置信息</text>
+            
+            <circle cx="650" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.4s"/>
+            </circle>
+            <text x="660" y="259" font-size="0.7em" fill="white">关键线索</text>
+          </g>
+          
+          <!-- 第五阶段：案件突破 -->
+          <g class="timeline-stage5">
+            <!-- 时间节点 -->
+            <circle cx="850" cy="300" r="15" fill="url(#timelineGrad5)" filter="url(#timelineShadow)">
+              <animate attributeName="r" values="12;18;12" dur="2s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="850" y="340" font-size="0.8em" fill="#666" text-anchor="middle" font-weight="bold">T+24小时</text>
+            
+            <!-- 阶段内容框 -->
+            <rect x="780" y="150" width="140" height="120" rx="15" fill="url(#timelineGrad5)" opacity="0.9" filter="url(#timelineShadow)">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            <text x="850" y="175" font-size="1.1em" fill="white" text-anchor="middle" font-weight="bold">案件突破</text>
+            
+            <!-- 详细步骤 -->
+            <circle cx="800" cy="195" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="810" y="199" font-size="0.7em" fill="white">证据链条</text>
+            
+            <circle cx="800" cy="215" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.3s"/>
+            </circle>
+            <text x="810" y="219" font-size="0.7em" fill="white">突破口供</text>
+            
+            <circle cx="800" cy="235" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.6s"/>
+            </circle>
+            <text x="810" y="239" font-size="0.7em" fill="white">真相还原</text>
+            
+            <circle cx="800" cy="255" r="4" fill="white" opacity="0.8">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="1.5s" repeatCount="indefinite" begin="2.9s"/>
+            </circle>
+            <text x="810" y="259" font-size="0.7em" fill="white">案件侦破</text>
+          </g>
+          
+          <!-- 流程箭头 -->
+          <g class="timeline-arrows">
+            <!-- 箭头1 -->
+            <path d="M 180 300 Q 215 280 250 300" stroke="#4fc3f7" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- 箭头2 -->
+            <path d="M 330 300 Q 365 280 400 300" stroke="#81c784" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            
+            <!-- 箭头3 -->
+            <path d="M 530 300 Q 565 280 600 300" stroke="#ffd54f" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="2s"/>
+            </path>
+            
+            <!-- 箭头4 -->
+            <path d="M 730 300 Q 765 280 800 300" stroke="#ff8a65" stroke-width="3" fill="none" marker-end="url(#timelineArrow)">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="3s"/>
+            </path>
+          </g>
+          
+          <!-- 关键成果展示 -->
+          <g class="timeline-results">
+            <!-- 成果1：时间推导准确 -->
+            <ellipse cx="300" cy="420" rx="90" ry="25" fill="#e3f2fd" stroke="#4fc3f7" stroke-width="2" opacity="0.9">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite"/>
+            </ellipse>
+            <text x="300" y="425" font-size="0.8em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">时间推导准确</text>
+            
+            <!-- 成果2：发现关键矛盾 -->
+            <ellipse cx="500" cy="420" rx="90" ry="25" fill="#fff8e1" stroke="#ffd54f" stroke-width="2" opacity="0.9">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite" begin="0.8s"/>
+            </ellipse>
+            <text x="500" y="425" font-size="0.8em" fill="#f57c00" text-anchor="middle" font-weight="bold">发现关键矛盾</text>
+            
+            <!-- 成果3：成功侦破案件 -->
+            <ellipse cx="700" cy="420" rx="90" ry="25" fill="#f3e5f5" stroke="#ba68c8" stroke-width="2" opacity="0.9">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2.5s" repeatCount="indefinite" begin="1.6s"/>
+            </ellipse>
+            <text x="700" y="425" font-size="0.8em" fill="#ba68c8" text-anchor="middle" font-weight="bold">成功侦破案件</text>
+          </g>
+          
+          <!-- 效果统计 -->
+          <g class="timeline-stats">
+            <rect x="50" y="480" width="900" height="80" rx="15" fill="#f5f5f5" stroke="#ddd" stroke-width="1" opacity="0.9"/>
+            <text x="500" y="505" font-size="1.2em" fill="#333" text-anchor="middle" font-weight="bold">案例效果统计</text>
+            
+            <!-- 统计项1 -->
+            <circle cx="200" cy="535" r="8" fill="#4fc3f7"/>
+            <text x="220" y="540" font-size="0.9em" fill="#333" font-weight="bold">推导准确率：95%</text>
+            
+            <!-- 统计项2 -->
+            <circle cx="400" cy="535" r="8" fill="#81c784"/>
+            <text x="420" y="540" font-size="0.9em" fill="#333" font-weight="bold">办案效率：提升60%</text>
+            
+            <!-- 统计项3 -->
+            <circle cx="650" cy="535" r="8" fill="#ffd54f"/>
+            <text x="670" y="540" font-size="0.9em" fill="#333" font-weight="bold">破案时间：缩短75%</text>
+          </g>
+        </svg>
+      </section>
+      <section>
+        <h2>总结与展望</h2>
+        <ul>
+          <li>基于经验与文献，构建实用工具，提升质效</li>
+          <li>探索AI警务落地新路径，解决安全与可靠性难题</li>
+          <li>未来拓展：采集电阻/电容等新因子，推广至足迹、血迹分析等领域</li>
+        </ul>
+        <svg width="1100" height="700"  viewBox="0 0 1000 705" preserveAspectRatio="xMidYMid meet"style="margin: 20px auto; display:block ;">
+          <!-- 定义渐变和滤镜 -->
+          <defs>
+            <!-- 技术创新渐变 -->
+            <linearGradient id="innovationGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#4fc3f7;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#29b6f6;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#03a9f4;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad2" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#81c784;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#66bb6a;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#4caf50;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad3" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ffd54f;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ffca28;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ffc107;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad4" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ff8a65;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ff7043;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#ff5722;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad5" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#ba68c8;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#ab47bc;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#9c27b0;stop-opacity:1" />
+            </linearGradient>
+            <linearGradient id="innovationGrad6" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" style="stop-color:#26c6da;stop-opacity:1" />
+              <stop offset="50%" style="stop-color:#00bcd4;stop-opacity:1" />
+              <stop offset="100%" style="stop-color:#00acc1;stop-opacity:1" />
+            </linearGradient>
+            
+            <!-- 阴影滤镜 -->
+            <filter id="innovationShadow" x="-50%" y="-50%" width="200%" height="200%">
+              <feDropShadow dx="4" dy="4" stdDeviation="4" flood-color="rgba(0,0,0,0.3)"/>
+            </filter>
+            
+            <!-- 发光滤镜 -->
+            <filter id="innovationGlow" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="5" result="coloredBlur"/>
+              <feMerge> 
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/> 
+              </feMerge>
+            </filter>
+            
+            <!-- 连接线箭头 -->
+            <marker id="innovationArrow" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+              <polygon points="0 0, 10 3.5, 0 7" fill="#666" />
+            </marker>
+          </defs>
+          
+          <!-- 标题 -->
+          <text x="550" y="40" font-size="2em" fill="#333" text-anchor="middle" font-weight="bold">技术创新矩阵</text>
+          <text x="550" y="65" font-size="1.2em" fill="#666" text-anchor="middle">AI赋能现代刑事技术应用体系</text>
+          
+          <!-- 矩阵背景网格 -->
+          <g class="matrix-grid">
+            <!-- 垂直线 -->
+            <line x1="200" y1="120" x2="200" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+            <line x1="400" y1="120" x2="400" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+            <line x1="600" y1="120" x2="600" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+            <line x1="800" y1="120" x2="800" y2="580" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+            
+            <!-- 水平线 -->
+            <line x1="100" y1="200" x2="900" y2="200" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+            <line x1="100" y1="320" x2="900" y2="320" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+            <line x1="100" y1="440" x2="900" y2="440" stroke="#e0e0e0" stroke-width="2" opacity="0.5"/>
+          </g>
+          
+          <!-- Y轴标签：技术成熟度 -->
+          <g class="y-axis">
+            <text x="50" y="350" font-size="1.3em" fill="#333" text-anchor="middle" font-weight="bold" transform="rotate(-90 50 350)">技术成熟度</text>
+            <text x="80" y="170" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">高</text>
+            <text x="80" y="290" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">中</text>
+            <text x="80" y="410" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">低</text>
+            <text x="80" y="530" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">探索</text>
+          </g>
+          
+          <!-- X轴标签：应用价值 -->
+          <g class="x-axis">
+            <text x="500" y="620" font-size="1.3em" fill="#333" text-anchor="middle" font-weight="bold">应用价值</text>
+            <text x="150" y="610" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">基础</text>
+            <text x="300" y="610" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">重要</text>
+            <text x="500" y="610" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">核心</text>
+            <text x="700" y="610" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">战略</text>
+            <text x="850" y="610" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">颠覆</text>
+          </g>
+          
+          <!-- 技术创新点1：多指标融合算法 -->
+          <g class="innovation-point1">
+            <circle cx="500" cy="160" r="35" fill="url(#innovationGrad1)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="32;38;32" dur="3s" repeatCount="indefinite"/>
+            </circle>
+            <text x="500" y="155" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">多指标</text>
+            <text x="500" y="170" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">融合算法</text>
+            
+            <!-- 特征标签 -->
+            <rect x="420" y="110" width="160" height="25" rx="12" fill="#e3f2fd" stroke="#4fc3f7" stroke-width="1">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite"/>
+            </rect>
+            <text x="500" y="127" font-size="0.7em" fill="#4fc3f7" text-anchor="middle" font-weight="bold">成熟度：高 | 价值：核心</text>
+          </g>
+          
+          <!-- 技术创新点2：智能UI设计 -->
+          <g class="innovation-point2">
+            <circle cx="300" cy="200" r="30" fill="url(#innovationGrad2)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="27;33;27" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </circle>
+            <text x="300" y="195" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">智能UI</text>
+            <text x="300" y="210" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">设计</text>
+            
+            <!-- 特征标签 -->
+            <rect x="230" y="150" width="140" height="25" rx="12" fill="#e8f5e8" stroke="#81c784" stroke-width="1">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="300" y="167" font-size="0.7em" fill="#81c784" text-anchor="middle" font-weight="bold">成熟度：高 | 价值：重要</text>
+          </g>
+          
+          <!-- 技术创新点3：实时数据采集 -->
+          <g class="innovation-point3">
+            <circle cx="700" cy="240" r="32" fill="url(#innovationGrad3)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="29;35;29" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </circle>
+            <text x="700" y="235" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">实时数据</text>
+            <text x="700" y="250" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">采集</text>
+            
+            <!-- 特征标签 -->
+            <rect x="620" y="190" width="160" height="25" rx="12" fill="#fff8e1" stroke="#ffd54f" stroke-width="1">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="700" y="207" font-size="0.7em" fill="#f57c00" text-anchor="middle" font-weight="bold">成熟度：中 | 价值：战略</text>
+          </g>
+          
+          <!-- 技术创新点4：标准化分级 -->
+          <g class="innovation-point4">
+            <circle cx="400" cy="280" r="28" fill="url(#innovationGrad4)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="25;31;25" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </circle>
+            <text x="400" y="275" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">标准化</text>
+            <text x="400" y="290" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">分级</text>
+            
+            <!-- 特征标签 -->
+            <rect x="330" y="230" width="140" height="25" rx="12" fill="#fce4ec" stroke="#ff8a65" stroke-width="1">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="1.5s"/>
+            </rect>
+            <text x="400" y="247" font-size="0.7em" fill="#ff8a65" text-anchor="middle" font-weight="bold">成熟度：中 | 价值：重要</text>
+          </g>
+          
+          <!-- 技术创新点5：AI模型优化 -->
+          <g class="innovation-point5">
+            <circle cx="600" cy="380" r="33" fill="url(#innovationGrad5)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="30;36;30" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </circle>
+            <text x="600" y="375" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">AI模型</text>
+            <text x="600" y="390" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">优化</text>
+            
+            <!-- 特征标签 -->
+            <rect x="520" y="330" width="160" height="25" rx="12" fill="#f3e5f5" stroke="#ba68c8" stroke-width="1">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            <text x="600" y="347" font-size="0.7em" fill="#ba68c8" text-anchor="middle" font-weight="bold">成熟度：低 | 价值：核心</text>
+          </g>
+          
+          <!-- 技术创新点6：跨领域扩展 -->
+          <g class="innovation-point6">
+            <circle cx="800" cy="480" r="30" fill="url(#innovationGrad6)" filter="url(#innovationShadow)">
+              <animate attributeName="r" values="27;33;27" dur="3s" repeatCount="indefinite" begin="2.5s"/>
+            </circle>
+            <text x="800" y="475" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">跨领域</text>
+            <text x="800" y="490" font-size="0.8em" fill="white" text-anchor="middle" font-weight="bold">扩展</text>
+            
+            <!-- 特征标签 -->
+            <rect x="720" y="430" width="160" height="25" rx="12" fill="#e0f2f1" stroke="#26c6da" stroke-width="1">
+              <animate attributeName="opacity" values="0.8;1;0.8" dur="2s" repeatCount="indefinite" begin="2.5s"/>
+            </rect>
+            <text x="800" y="447" font-size="0.7em" fill="#26c6da" text-anchor="middle" font-weight="bold">成熟度：探索 | 价值：颠覆</text>
+          </g>
+          
+          <!-- 连接线显示技术关联 -->
+          <g class="innovation-connections">
+            <!-- 多指标融合 → 智能UI -->
+            <path d="M 470 170 Q 420 180 330 190" stroke="#4fc3f7" stroke-width="2" fill="none" marker-end="url(#innovationArrow)" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite"/>
+            </path>
+            
+            <!-- 智能UI → 标准化分级 -->
+            <path d="M 320 220 Q 350 240 380 260" stroke="#81c784" stroke-width="2" fill="none" marker-end="url(#innovationArrow)" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="1s"/>
+            </path>
+            
+            <!-- 实时数据采集 → AI模型优化 -->
+            <path d="M 680 260 Q 650 300 620 360" stroke="#ffd54f" stroke-width="2" fill="none" marker-end="url(#innovationArrow)" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="2s"/>
+            </path>
+            
+            <!-- AI模型优化 → 跨领域扩展 -->
+            <path d="M 630 400 Q 700 430 770 460" stroke="#ba68c8" stroke-width="2" fill="none" marker-end="url(#innovationArrow)" opacity="0.6">
+              <animate attributeName="stroke-dasharray" values="0,1000;1000,0" dur="4s" repeatCount="indefinite" begin="3s"/>
+            </path>
+          </g>
+          
+          <!-- 创新优势对比 -->
+          <g class="innovation-comparison">
+            <rect x="950" y="120" width="130" height="400" rx="15" fill="#f5f5f5" stroke="#ddd" stroke-width="2" opacity="0.9"/>
+            <text x="1015" y="145" font-size="1.1em" fill="#333" text-anchor="middle" font-weight="bold">创新优势</text>
+            
+            <!-- 优势项1 -->
+            <circle cx="970" cy="180" r="6" fill="#4fc3f7"/>
+            <text x="985" y="185" font-size="0.8em" fill="#333" font-weight="bold">准确率提升</text>
+            <rect x="970" y="195" width="80" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="970" y="195" width="72" height="8" rx="4" fill="#4fc3f7">
+              <animate attributeName="width" values="60;80;60" dur="3s" repeatCount="indefinite"/>
+            </rect>
+            <text x="1015" y="215" font-size="0.7em" fill="#666" text-anchor="middle">90%</text>
+            
+            <!-- 优势项2 -->
+            <circle cx="970" cy="240" r="6" fill="#81c784"/>
+            <text x="985" y="245" font-size="0.8em" fill="#333" font-weight="bold">效率提升</text>
+            <rect x="970" y="255" width="80" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="970" y="255" width="64" height="8" rx="4" fill="#81c784">
+              <animate attributeName="width" values="50;70;50" dur="3s" repeatCount="indefinite" begin="0.5s"/>
+            </rect>
+            <text x="1015" y="275" font-size="0.7em" fill="#666" text-anchor="middle">80%</text>
+            
+            <!-- 优势项3 -->
+            <circle cx="970" cy="300" r="6" fill="#ffd54f"/>
+            <text x="985" y="305" font-size="0.8em" fill="#333" font-weight="bold">成本降低</text>
+            <rect x="970" y="315" width="80" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="970" y="315" width="56" height="8" rx="4" fill="#ffd54f">
+              <animate attributeName="width" values="40;65;40" dur="3s" repeatCount="indefinite" begin="1s"/>
+            </rect>
+            <text x="1015" y="335" font-size="0.7em" fill="#666" text-anchor="middle">70%</text>
+            
+            <!-- 优势项4 -->
+            <circle cx="970" cy="360" r="6" fill="#ff8a65"/>
+            <text x="985" y="365" font-size="0.8em" fill="#333" font-weight="bold">标准化</text>
+            <rect x="970" y="375" width="80" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="970" y="375" width="68" height="8" rx="4" fill="#ff8a65">
+              <animate attributeName="width" values="55;75;55" dur="3s" repeatCount="indefinite" begin="1.5s"/>
+            </rect>
+            <text x="1015" y="395" font-size="0.7em" fill="#666" text-anchor="middle">85%</text>
+            
+            <!-- 优势项5 -->
+            <circle cx="970" cy="420" r="6" fill="#ba68c8"/>
+            <text x="985" y="425" font-size="0.8em" fill="#333" font-weight="bold">可扩展性</text>
+            <rect x="970" y="435" width="80" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="970" y="435" width="60" height="8" rx="4" fill="#ba68c8">
+              <animate attributeName="width" values="45;70;45" dur="3s" repeatCount="indefinite" begin="2s"/>
+            </rect>
+            <text x="1015" y="455" font-size="0.7em" fill="#666" text-anchor="middle">75%</text>
+            
+            <!-- 优势项6 -->
+            <circle cx="970" cy="480" r="6" fill="#26c6da"/>
+            <text x="985" y="485" font-size="0.8em" fill="#333" font-weight="bold">创新性</text>
+            <rect x="970" y="495" width="80" height="8" rx="4" fill="#e0e0e0"/>
+            <rect x="970" y="495" width="76" height="8" rx="4" fill="#26c6da">
+              <animate attributeName="width" values="65;85;65" dur="3s" repeatCount="indefinite" begin="2.5s"/>
+            </rect>
+            <text x="1015" y="515" font-size="0.7em" fill="#666" text-anchor="middle">95%</text>
+          </g>
+          
+          <!-- 发展路径箭头 -->
+          <g class="development-path">
+            <path d="M 150 550 Q 300 520 450 550 Q 600 580 750 550 Q 850 530 950 550" stroke="#666" stroke-width="3" fill="none" marker-end="url(#innovationArrow)" stroke-dasharray="10,5">
+              <animate attributeName="stroke-dasharray" values="10,5;20,10;10,5" dur="2s" repeatCount="indefinite"/>
+            </path>
+            <text x="550" y="580" font-size="1em" fill="#666" text-anchor="middle" font-weight="bold">技术发展路径</text>
+          </g>
+        </svg>
+
+      </section>
+      <section class="thank-page">
+        <div class="thank-content">
+          <h1>感谢聆听！</h1>
+          <div class="thank-subtitle">
+            成都市公安局武侯区分局
+          </div>
+          <div class="contact-info">
+            <p>📧 联系邮箱：314352355@qq.com</p>
+            <p>📱 联系电话：17708190607</p>
+          </div>
+          <div class="thank-message">
+            期待与您的交流和指正
+          </div>
+        </div>
+      </section>
+
+    </div>
+    <div class="page-indicator" id="pageIndicator"></div>
+   <script>
+      // 增强粒子特效canvas - 动态彩色粒子系统
+      const canvas = document.getElementById("particle-bg");
+      const ctx = canvas.getContext("2d");
+      let particles = [];
+      let stars = [];
+      let waves = [];
+      let animationId;
+      let mouse = { x: 0, y: 0 };
+      let time = 0;
+      
+      // 颜色主题
+      const colors = {
+        primary: [79, 195, 247],    // #4fc3f7
+        secondary: [129, 199, 132], // #81c784
+        accent: [33, 150, 243],     // #2196f3
+        warm: [255, 112, 67],       // #ff7043
+        cool: [156, 39, 176]        // #9c27b0
+      };
+      
+      function resizeCanvas() {
+        canvas.width = 1920;
+        canvas.height = 1080;
+        createParticles();
+        createStars();
+        createWaves();
+      }
+      
+      resizeCanvas();
+      window.addEventListener("resize", resizeCanvas);
+      
+      // 鼠标移动事件监听
+      canvas.addEventListener("mousemove", (e) => {
+        const rect = canvas.getBoundingClientRect();
+        mouse.x = (e.clientX - rect.left) * (1920 / rect.width);
+        mouse.y = (e.clientY - rect.top) * (1080 / rect.height);
+      });
+      
+      function createParticles() {
+        particles = [];
+        const particleCount = 150;
+        
+        for (let i = 0; i < particleCount; i++) {
+          const colorKeys = Object.keys(colors);
+          const colorKey = colorKeys[Math.floor(Math.random() * colorKeys.length)];
+          
+          particles.push({
+            x: Math.random() * 1920,
+            y: Math.random() * 1080,
+            vx: (Math.random() - 0.5) * 0.8,
+            vy: (Math.random() - 0.5) * 0.8,
+            radius: Math.random() * 3 + 1,
+            opacity: Math.random() * 0.6 + 0.3,
+            color: colors[colorKey],
+            pulsePhase: Math.random() * Math.PI * 2,
+            pulseSpeed: Math.random() * 0.02 + 0.01,
+            trail: [],
+            type: Math.random() > 0.8 ? 'special' : 'normal'
+          });
+        }
+      }
+      
+      function createStars() {
+        stars = [];
+        const starCount = 80;
+        
+        for (let i = 0; i < starCount; i++) {
+          stars.push({
+            x: Math.random() * 1920,
+            y: Math.random() * 1080,
+            size: Math.random() * 2 + 0.5,
+            opacity: Math.random() * 0.8 + 0.2,
+            twinklePhase: Math.random() * Math.PI * 2,
+            twinkleSpeed: Math.random() * 0.03 + 0.01
+          });
+        }
+      }
+      
+      function createWaves() {
+        waves = [];
+        const waveCount = 3;
+        
+        for (let i = 0; i < waveCount; i++) {
+          waves.push({
+            y: 200 + i * 300,
+            amplitude: 30 + Math.random() * 20,
+            frequency: 0.002 + Math.random() * 0.001,
+            phase: Math.random() * Math.PI * 2,
+            speed: 0.01 + Math.random() * 0.005,
+            opacity: 0.1 + Math.random() * 0.1
+          });
+        }
+      }
+      
+      function drawStars() {
+        for (const star of stars) {
+          const twinkle = Math.sin(time * star.twinkleSpeed + star.twinklePhase) * 0.3 + 0.7;
+          const opacity = star.opacity * twinkle;
+          
+          ctx.beginPath();
+          ctx.arc(star.x, star.y, star.size, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
+          ctx.fill();
+          
+          // 星光效果
+          if (twinkle > 0.8) {
+            ctx.beginPath();
+            ctx.moveTo(star.x - star.size * 3, star.y);
+            ctx.lineTo(star.x + star.size * 3, star.y);
+            ctx.moveTo(star.x, star.y - star.size * 3);
+            ctx.lineTo(star.x, star.y + star.size * 3);
+            ctx.strokeStyle = `rgba(255, 255, 255, ${opacity * 0.5})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        }
+      }
+      
+      function drawWaves() {
+        for (const wave of waves) {
+          ctx.beginPath();
+          ctx.moveTo(0, wave.y);
+          
+          for (let x = 0; x <= 1920; x += 10) {
+            const y = wave.y + Math.sin(x * wave.frequency + time * wave.speed + wave.phase) * wave.amplitude;
+            ctx.lineTo(x, y);
+          }
+          
+          ctx.strokeStyle = `rgba(${colors.primary[0]}, ${colors.primary[1]}, ${colors.primary[2]}, ${wave.opacity})`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+      
+      function drawParticles() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // 绘制背景波浪
+        drawWaves();
+        
+        // 绘制星星
+        drawStars();
+        
+        // 绘制粒子
+        for (let i = 0; i < particles.length; i++) {
+          const p = particles[i];
+          
+          // 脉冲效果
+          const pulse = Math.sin(time * p.pulseSpeed + p.pulsePhase) * 0.3 + 0.7;
+          const currentRadius = p.radius * pulse;
+          const currentOpacity = p.opacity * pulse;
+          
+          // 绘制粒子轨迹
+          if (p.trail.length > 1) {
+            ctx.beginPath();
+            ctx.moveTo(p.trail[0].x, p.trail[0].y);
+            for (let t = 1; t < p.trail.length; t++) {
+              ctx.lineTo(p.trail[t].x, p.trail[t].y);
+            }
+            ctx.strokeStyle = `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${currentOpacity * 0.3})`;
+            ctx.lineWidth = 1;
+            ctx.stroke();
+          }
+          
+          // 绘制粒子主体
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, currentRadius, 0, Math.PI * 2);
+          
+          if (p.type === 'special') {
+            // 特殊粒子 - 渐变效果
+            const gradient = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, currentRadius * 2);
+            gradient.addColorStop(0, `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${currentOpacity})`);
+            gradient.addColorStop(1, `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, 0)`);
+            ctx.fillStyle = gradient;
+          } else {
+            ctx.fillStyle = `rgba(${p.color[0]}, ${p.color[1]}, ${p.color[2]}, ${currentOpacity})`;
+          }
+          ctx.fill();
+          
+          // 绘制连线 - 彩色连线
+          for (let j = i + 1; j < particles.length; j++) {
+            const p2 = particles[j];
+            const distance = Math.sqrt((p.x - p2.x) ** 2 + (p.y - p2.y) ** 2);
+            
+            if (distance < 120) {
+              const lineOpacity = 0.3 * (1 - distance / 120) * currentOpacity;
+              
+              // 混合两个粒子的颜色
+              const mixedColor = [
+                Math.floor((p.color[0] + p2.color[0]) / 2),
+                Math.floor((p.color[1] + p2.color[1]) / 2),
+                Math.floor((p.color[2] + p2.color[2]) / 2)
+              ];
+              
+              ctx.beginPath();
+              ctx.moveTo(p.x, p.y);
+              ctx.lineTo(p2.x, p2.y);
+              ctx.strokeStyle = `rgba(${mixedColor[0]}, ${mixedColor[1]}, ${mixedColor[2]}, ${lineOpacity})`;
+              ctx.lineWidth = 1.5;
+              ctx.stroke();
+            }
+          }
+        }
+        
+        // 鼠标交互光环
+        if (mouse.x > 0 && mouse.y > 0) {
+          const ringRadius = 50 + Math.sin(time * 0.05) * 10;
+          ctx.beginPath();
+          ctx.arc(mouse.x, mouse.y, ringRadius, 0, Math.PI * 2);
+          ctx.strokeStyle = `rgba(${colors.accent[0]}, ${colors.accent[1]}, ${colors.accent[2]}, 0.4)`;
+          ctx.lineWidth = 2;
+          ctx.stroke();
+        }
+      }
+      
+      function updateParticles() {
+        for (const p of particles) {
+          // 更新轨迹
+          p.trail.push({ x: p.x, y: p.y });
+          if (p.trail.length > 8) {
+            p.trail.shift();
+          }
+          
+          // 鼠标交互效果
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const distance = Math.sqrt(dx * dx + dy * dy);
+          
+          if (distance < 200 && distance > 0) {
+            const force = (200 - distance) / 200 * 0.03;
+            p.vx += (dx / distance) * force;
+            p.vy += (dy / distance) * force;
+          }
+          
+          // 添加随机扰动
+          p.vx += (Math.random() - 0.5) * 0.01;
+          p.vy += (Math.random() - 0.5) * 0.01;
+          
+          // 限制最大速度
+          const maxSpeed = 2;
+          const speed = Math.sqrt(p.vx * p.vx + p.vy * p.vy);
+          if (speed > maxSpeed) {
+            p.vx = (p.vx / speed) * maxSpeed;
+            p.vy = (p.vy / speed) * maxSpeed;
+          }
+          
+          p.x += p.vx;
+          p.y += p.vy;
+          
+          // 边界检测 - 柔和反弹
+          if (p.x < 0 || p.x > 1920) {
+            p.vx = -p.vx * 0.8;
+            p.x = Math.max(0, Math.min(1920, p.x));
+          }
+          if (p.y < 0 || p.y > 1080) {
+            p.vy = -p.vy * 0.8;
+            p.y = Math.max(0, Math.min(1080, p.y));
+          }
+          
+          // 添加阻尼
+          p.vx *= 0.995;
+          p.vy *= 0.995;
+        }
+      }
+      
+      function animate() {
+        time += 1;
+        drawParticles();
+        updateParticles();
+        animationId = requestAnimationFrame(animate);
+      }
+      
+      createParticles();
+      animate(); // PPT分页与动画
+      const sections = document.querySelectorAll("#ppt-root section");
+      const indicator = document.getElementById("pageIndicator");
+      let current = 0;
+      function update() {
+        sections.forEach((sec, i) => {
+          sec.classList.remove("active", "slide-out");
+          sec.style.zIndex = 0;
+          if (i === current) {
+            // 添加进入动画
+            setTimeout(() => {
+              sec.classList.add("active");
+              sec.style.zIndex = 1;
+              // 重新触发列表项动画
+              const listItems = sec.querySelectorAll('li');
+              listItems.forEach((item, index) => {
+                item.style.animation = 'none';
+                item.offsetHeight; // 触发重排
+                item.style.animation = `listItemEnter 0.6s ease-out ${(index + 1) * 0.1}s forwards`;
+              });
+              // 重新触发标题动画
+              const h2 = sec.querySelector('h2');
+              if (h2) {
+                h2.style.animation = 'none';
+                h2.offsetHeight;
+                h2.style.animation = 'h2Enter 0.8s ease-out 0.3s forwards';
+              }
+              // 重新触发引用块动画
+              const blockquote = sec.querySelector('blockquote');
+              if (blockquote) {
+                blockquote.style.animation = 'none';
+                blockquote.offsetHeight;
+                blockquote.style.animation = 'blockquoteEnter 1s ease-out 0.8s forwards';
+              }
+            }, 100);
+          } else if (sec.classList.contains("active")) {
+            // 添加退出动画
+            sec.classList.add("slide-out");
+            setTimeout(() => {
+              sec.classList.remove("active");
+            }, 300);
+          }
+        });
+        // 按钮状态由提示稿面板中的按钮控制
+        
+        indicator.innerHTML = "";
+        for (let i = 0; i < sections.length; i++) {
+          const dot = document.createElement("span");
+          dot.className = "dot" + (i === current ? " active" : "");
+          indicator.appendChild(dot);
+        }
+        document.body.style.background = bgByPage(current);
+        
+        // 更新提示稿面板按钮状态
+        updateScriptNavButtons();
+      }
+      function bgByPage(idx) {
+        const bgs = ["#181c24", "#1e2330", "#1a2a3a", "#232a36", "#181c24"];
+        return bgs[idx % bgs.length];
+      }
+      function animatePage(dir) {
+        const out = sections[current];
+        let next = current + dir;
+        if (next < 0 || next >= sections.length) return;
+        const inc = dir > 0;
+        out.style.transition = "opacity 0.5s,transform 0.5s";
+        out.style.opacity = 0;
+        out.style.transform = `translateY(${inc ? "-" : "+"}2vw)`;
+        setTimeout(() => {
+          out.classList.remove("active");
+          out.style.transition = "";
+          out.style.opacity = "";
+          out.style.transform = "";
+          current = next;
+          const inn = sections[current];
+          inn.classList.add("active");
+          inn.style.opacity = 0;
+          inn.style.transform = `translateY(${inc ? "+" : "-"}2vw)`;
+          setTimeout(() => {
+            inn.style.transition = "opacity 0.7s,transform 0.7s";
+            inn.style.opacity = 1;
+            inn.style.transform = "translateY(0)";
+          }, 10);
+          update();
+        }, 400);
+      }
+      document.onkeydown = (e) => {
+        if (e.key === "ArrowRight" || e.key === " " || e.key === "Enter") {
+          nextPage();
+        } else if (e.key === "ArrowLeft") {
+          prevPage();
+        }
+      };
+      update();
+      window.addEventListener("resize", () => {
+        const root = document.getElementById("ppt-root");
+        const ww = window.innerWidth,
+          wh = window.innerHeight;
+        let scale = Math.min(ww / 1920, wh / 1080);
+        if (scale > 1) scale = 1;
+        root.style.transform = `scale(${scale})`;
+        root.style.marginTop = `${(wh - 1080 * scale) / 2}px`;
+      });
+      window.dispatchEvent(new Event("resize"));
+      
+      // 计时器功能
+      let timerInterval = null;
+      let startTime = 0;
+      let elapsedTime = 0;
+      let isRunning = false;
+      
+      function formatTime(milliseconds) {
+        const totalSeconds = Math.floor(milliseconds / 1000);
+        const hours = Math.floor(totalSeconds / 3600);
+        const minutes = Math.floor((totalSeconds % 3600) / 60);
+        const seconds = totalSeconds % 60;
+        
+        return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      }
+      
+      function updateTimerDisplay() {
+        const currentTime = Date.now();
+        const totalElapsed = elapsedTime + (isRunning ? currentTime - startTime : 0);
+        document.getElementById('timer-display').textContent = formatTime(totalElapsed);
+      }
+      
+      function toggleTimer() {
+        const startBtn = document.getElementById('start-btn');
+        const timerContainer = document.getElementById('timer-container');
+        
+        if (isRunning) {
+          // 暂停计时器
+          clearInterval(timerInterval);
+          elapsedTime += Date.now() - startTime;
+          isRunning = false;
+          startBtn.textContent = '开始';
+          timerContainer.classList.remove('timer-running');
+        } else {
+          // 开始计时器
+          startTime = Date.now();
+          isRunning = true;
+          startBtn.textContent = '暂停';
+          timerContainer.classList.add('timer-running');
+          
+          timerInterval = setInterval(updateTimerDisplay, 100);
+        }
+      }
+      
+      function resetTimer() {
+        clearInterval(timerInterval);
+        elapsedTime = 0;
+        isRunning = false;
+        
+        const startBtn = document.getElementById('start-btn');
+        const timerContainer = document.getElementById('timer-container');
+        
+        startBtn.textContent = '开始';
+        timerContainer.classList.remove('timer-running');
+        document.getElementById('timer-display').textContent = '00:00:00';
+      }
+      
+      // 初始化计时器显示
+      updateTimerDisplay();
+        
+        // 提示稿面板控制
+        function toggleScript() {
+          const panel = document.getElementById('script-panel');
+          panel.classList.toggle('open');
+        }
+        
+        // 翻页函数
+        function prevPage() {
+          if (current > 0) {
+            animatePage(-1);
+          }
+        }
+        
+        function nextPage() {
+          if (current < sections.length - 1) {
+            animatePage(1);
+          }
+        }
+        
+        // 更新提示稿面板按钮状态
+        function updateScriptNavButtons() {
+          // 更新所有翻页按钮的状态
+          for (let i = 1; i <= 7; i++) {
+            const scriptPrevBtn = document.getElementById(`script-prev-btn-${i}`);
+            const scriptNextBtn = document.getElementById(`script-next-btn-${i}`);
+            
+            if (scriptPrevBtn) {
+              scriptPrevBtn.disabled = current === 0;
+            }
+            if (scriptNextBtn) {
+              scriptNextBtn.disabled = current === sections.length - 1;
+            }
+          }
+        }
+      </script>
+    </body>
+    </html>
